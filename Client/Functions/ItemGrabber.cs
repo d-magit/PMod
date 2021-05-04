@@ -6,7 +6,7 @@ using VRC.SDKBase;
 using UIExpansionKit.API;
 using Object = UnityEngine.Object;
 
-namespace Main
+namespace Client
 {
     public class ItemGrabber
     {
@@ -17,18 +17,19 @@ namespace Main
         private static float min_distance;
         private static bool patch_all;
         private static bool take_ownership;
-
         public static ICustomShowableLayoutedMenu PickupMenu;
+        public static bool IsOn;
+
 
         public static void OnApplicationStart()
         {
             MelonPreferences.CreateCategory("ItemGrabber", "Item Grabber");
+            MelonPreferences.CreateEntry("ItemGrabber", "IsOn", false, "Activate Mod? This is a risky function.");
             MelonPreferences.CreateEntry("ItemGrabber", "GrabDistance", -1.0f, "Distance (meters) for grabbing all, set to -1 for unlimited.");
             MelonPreferences.CreateEntry("ItemGrabber", "PatchAllOnLoad", false, "Patch All on Scene Load");
             MelonPreferences.CreateEntry("ItemGrabber", "TakeOwnership", true, "Take Ownership of Object on Grab");
-            // MelonPreferences.CreateEntry("ItemGrabber", "Log", false, "Log");
             PickupMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
-            PickupMenu.AddSimpleButton("Go back", () => ModMain.ClientMenu.Show());
+            PickupMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             PickupMenu.AddSimpleButton("Patch", () => Select("Patch"));
             PickupMenu.AddSimpleButton("Grab", () => Select("Grab"));
             OnPreferencesSaved();
@@ -36,10 +37,10 @@ namespace Main
 
         public static void OnPreferencesSaved()
         {
+            IsOn = MelonPreferences.GetEntryValue<bool>("ItemGrabber", "IsOn");
             min_distance = MelonPreferences.GetEntryValue<float>("ItemGrabber", "GrabDistance");
             patch_all = MelonPreferences.GetEntryValue<bool>("ItemGrabber", "PatchAllOnLoad");
             take_ownership = MelonPreferences.GetEntryValue<bool>("ItemGrabber", "TakeOwnership");
-            // log = MelonPreferences.GetEntryValue<bool>("ItemGrabber", "Log");
         }
 
         public static void OnSceneWasLoaded()
@@ -72,7 +73,6 @@ namespace Main
 
         private static void Patch(VRC_Pickup Item)
         {
-            // if (log) MelonLogger.Msg(ConsoleColor.Cyan, $"Patching: {Item.name}");
             Item.GetComponent<VRC_Pickup>().DisallowTheft = false;
             Item.GetComponent<VRC_Pickup>().allowManipulationWhenEquipped = true;
             Item.GetComponent<VRC_Pickup>().pickupable = true;
@@ -96,11 +96,9 @@ namespace Main
             try
             {
                 VRCPlayerApi GetOwner() => Networking.GetOwner(Item.gameObject);
-                // if (log) MelonLogger.Msg(ConsoleColor.Cyan, $"Grabbing: {Item.name}. Take Ownership: {take_ownership}.");
                 Patch(Item);
                 if (GetOwner().playerId != GetLocalVRCPlayerApi().playerId && take_ownership)
                 {
-                    // if (log) MelonLogger.Msg(ConsoleColor.Cyan, $"Taking Ownership...");
                     Item.GetComponent<VRC_Pickup>().currentlyHeldBy = null;
                     Networking.SetOwner(GetLocalVRCPlayerApi(), Item.gameObject);
                 }
@@ -112,7 +110,7 @@ namespace Main
             }
         }
 
-        // I took this method from someone else from the mod community and I really don't remember who exactly to give the credits :( I'm very sorry
+        // I took this from someone else from the mod community and I really don't remember who exactly to give the credits :( I'm very sorry
         private static Transform TransformOfBone(Player player, HumanBodyBones bone)
         {
             Transform playerPosition = player.transform;

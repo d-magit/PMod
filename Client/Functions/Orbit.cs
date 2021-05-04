@@ -5,10 +5,10 @@ using VRC;
 using VRC.Core;
 using VRC.SDKBase;
 using UIExpansionKit.API;
-using Main.Utils;
+using Client.Utils;
 using Object = UnityEngine.Object;
 
-namespace Main
+namespace Client
 {
     public class Orbit
     {
@@ -21,7 +21,6 @@ namespace Main
 
         public static ICustomShowableLayoutedMenu OrbitMenu;
         public static UnhollowerBaseLib.Il2CppArrayBase<VRC_Pickup> Pickups;
-        public static Orbit Instance { get; private set; }
         public static Quaternion rotation;
         public static Quaternion rotationy;
         public static Vector3 OrbitCenter;
@@ -29,6 +28,7 @@ namespace Main
         public static float Timer = 0f;
         public static float radius;
         public static float speed;
+        public static bool IsOn;
         public static RotType rotType;
         public enum RotType
         {
@@ -40,15 +40,15 @@ namespace Main
         public static void OnApplicationStart()
         {
             MelonPreferences.CreateCategory("Orbit", "Orbit");
+            MelonPreferences.CreateEntry("Orbit", "IsOn", false, "Activate Mod? This is a risky function.");
             MelonPreferences.CreateEntry("Orbit", "Radius", 1.0f, "Radius");
             MelonPreferences.CreateEntry("Orbit", "RotationX", 0.0f, "X Rotation");
             MelonPreferences.CreateEntry("Orbit", "RotationY", 0.0f, "Y Rotation");
             MelonPreferences.CreateEntry("Orbit", "RotationZ", 0.0f, "Z Rotation");
             MelonPreferences.CreateEntry("Orbit", "Speed", 1.0f, "Speed");
-            // MelonPreferences.CreateEntry("Orbit", "Log", false, "Log");
             MelonPreferences.CreateEntry("Orbit", "Patch", true, "Patch items on Orbit");
             OrbitMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu4Columns);
-            OrbitMenu.AddSimpleButton("Go back", () => ModMain.ClientMenu.Show());
+            OrbitMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             OrbitMenu.AddSimpleButton("Stop Orbit", () => StopOrbit());
             OrbitMenu.AddSimpleButton("Circular Orbit", () => SelectOrbit("Circular"));
             OrbitMenu.AddSimpleButton("Spherical Orbit", () => SelectOrbit("Spherical"));
@@ -65,11 +65,11 @@ namespace Main
 
         public static void OnPreferencesSaved()
         {
+            IsOn = MelonPreferences.GetEntryValue<bool>("Orbit", "IsOn");
             radius = MelonPreferences.GetEntryValue<float>("Orbit", "Radius");
             rotation = Quaternion.Euler(MelonPreferences.GetEntryValue<float>("Orbit", "RotationX"), 0, MelonPreferences.GetEntryValue<float>("Orbit", "RotationZ"));
             rotationy = Quaternion.Euler(0, MelonPreferences.GetEntryValue<float>("Orbit", "RotationY"), 0);
             speed = MelonPreferences.GetEntryValue<float>("Orbit", "Speed");
-            // log = MelonPreferences.GetEntryValue<bool>("Orbit", "Log");
             patch = MelonPreferences.GetEntryValue<bool>("Orbit", "Patch");
         }
 
@@ -90,20 +90,17 @@ namespace Main
 
         private static void OnInstanceChange(ApiWorld world, ApiWorldInstance instance)
         {
-            // if (log) MelonLogger.Msg(ConsoleColor.Cyan, $"Changing instance...");
             Playerlist = new List<Player>();
             StopOrbit();
         }
 
         private static void OnPlayerJoin(Player player)
         {
-            // if (log) MelonLogger.Msg(ConsoleColor.Cyan, $"Player {player.prop_APIUser_0.displayName} just joined, adding to the list...");
             Playerlist.Add(player);
         }
 
         private static void OnPlayerLeave(Player player)
         {
-            // if (log) MelonLogger.Msg(ConsoleColor.Cyan, $"Player {player.prop_APIUser_0.displayName} just left, removing from the list...");
             Playerlist.Remove(player);
             if (CurrentPlayer == player) StopOrbit();
         }
@@ -163,7 +160,6 @@ namespace Main
             Item.gameObject.SetActive(true);
             if (GetOwner().playerId != GetLocalVRCPlayerApi().playerId)
             {
-                // if (log) MelonLogger.Msg(ConsoleColor.Cyan, $"Taking Ownership of item {Item.name}...");
                 Item.GetComponent<VRC_Pickup>().currentlyHeldBy = null; 
                 Networking.SetOwner(GetLocalVRCPlayerApi(), Item.gameObject);
             }
