@@ -26,6 +26,11 @@ Features:
  * Allows you to forcefully clone any public avatar;
    * The button will get a different colour when the avatar is public, the person has cloning off and their avatar is not the same as yours.
  * The button will still show the compatible platforms.
+ * 
+## Copy Asset
+Features:
+ * Allows you to copy a .vrca asset to a path of your choice;
+   * The path can be set on mod configs. Default is user's desktop.
 
 ## Used libraries:
 * [UIExpansionKit by knah](https://github.com/knah/VRCMods/tree/master/UIExpansionKit) for menus and buttons interface.
