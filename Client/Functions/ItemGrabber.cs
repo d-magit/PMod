@@ -110,7 +110,7 @@ namespace Client
             }
         }
 
-        // I took this from someone else from the mod community and I really don't remember who exactly to give the credits :( I'm very sorry
+        // I took this from someone else from the mod community and I really don't remember who exactly to give the credits :( I'm very sorry.
         private static Transform TransformOfBone(Player player, HumanBodyBones bone)
         {
             Transform playerPosition = player.transform;

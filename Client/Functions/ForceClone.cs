@@ -22,8 +22,8 @@ namespace Client
         private static GameObject platformIconPC;
         private static GameObject platformIconOculus;
         private static Transform cloneButton;
-        private static Transform UserInteract => GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").transform;
-        private static Vector3 GetOriginalPos() => UserInteract.Find("ShowAuthorButton").position + UserInteract.Find("ViewAvatarThreeToggle/Button_UseSafetySettings").position - UserInteract.Find("MuteButton").position;
+        private static Transform UserInteract() => GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").transform;
+        private static Vector3 GetOriginalPos() => UserInteract().Find("ShowAuthorButton").position + UserInteract().Find("ViewAvatarThreeToggle/Button_UseSafetySettings").position - UserInteract().Find("MuteButton").position;
         private static bool isFar = true;
 
         public static void OnUiManagerInit()
@@ -32,7 +32,7 @@ namespace Client
             Main.listener.OnEnabled += delegate 
             {
                 APIUser QMUser = QM.field_Private_APIUser_0;
-                toClone = PlayerManager.Method_Public_Static_Player_String_PDM_0(QMUser.id)._vrcplayer.prop_ApiAvatar_0;
+                toClone = PlayerManager.Method_Public_Static_Player_String_1(QMUser.id)._vrcplayer.prop_ApiAvatar_0;
                 if (toClone.releaseStatus == "public" && !QMUser.allowAvatarCopying && toClone.id != VRCPlayer.field_Internal_Static_VRCPlayer_0.prop_ApiAvatar_0.id)
                 {
                     if (!isFar)
@@ -104,7 +104,6 @@ namespace Client
             }));
 
             cameraClone.name = "ForceCloneAvatarButton";
-            platform.name = "PlatformIcon";
         }
     }
 }
