@@ -1,15 +1,13 @@
 ﻿using System;
 using Il2CppSystem.Reflection;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnhollowerRuntimeLib;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using VRC.UI;
 
-namespace Client.Utils
+namespace Client.Functions.Utils
 {
     //Credits:
     //Emilia - Porting it to MelonLoader and helping to keep the git updated

@@ -2,7 +2,7 @@
 using UnityEngine;
 using VRC.SDKBase;
 
-namespace Client.Utils
+namespace Client.Functions.Utils
 {
     public class OrbitItem
     {
@@ -37,7 +37,8 @@ namespace Client.Utils
         private Vector3 CylindricalRot()
         {
             double Angle = Orbit.Timer * Orbit.speed + 2 * Math.PI * Index;
-            return Orbit.OrbitCenter + new Vector3(0, (float)(Orbit.PlayerHeight * Index), 0) + Orbit.rotationy * (Orbit.rotation * new Vector3((float)Math.Cos(Angle) * Orbit.radius, 0, (float)Math.Sin(Angle) * Orbit.radius));
+            return Orbit.OrbitCenter + new Vector3(0, (float)(Orbit.PlayerHeight * Index), 0) + Orbit.rotationy * 
+                (Orbit.rotation * new Vector3((float)Math.Cos(Angle) * Orbit.radius, 0, (float)Math.Sin(Angle) * Orbit.radius));
         }
 
         private Vector3 SphericalRot()
@@ -45,7 +46,8 @@ namespace Client.Utils
             double Angle = (Orbit.Timer * Orbit.speed) / (4 * Math.PI) + Index * 360;
             double Height = Orbit.PlayerHeight * ((Orbit.Timer * Orbit.speed / 2 + Index) % 1);
             Quaternion Rotation = Quaternion.Euler(0, (float)Angle, 0);
-            return Orbit.OrbitCenter + Orbit.rotationy * (Orbit.rotation * (Rotation * new Vector3((float)(4 * Math.Sqrt(Height * Orbit.PlayerHeight - Math.Pow(Height, 2)) * Orbit.radius), (float)Height, 0)));
+            return Orbit.OrbitCenter + Orbit.rotationy * (Orbit.rotation * 
+                (Rotation * new Vector3((float)(4 * Math.Sqrt(Height * Orbit.PlayerHeight - Math.Pow(Height, 2)) * Orbit.radius), (float)Height, 0)));
         }
 
         public Vector3 CurrentPos()

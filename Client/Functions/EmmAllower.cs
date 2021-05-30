@@ -2,7 +2,7 @@
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace Client
+namespace Client.Functions
 {
     public class EmmAllower
     {

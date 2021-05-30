@@ -5,18 +5,17 @@ using VRC;
 using VRC.Core;
 using VRC.SDKBase;
 using UIExpansionKit.API;
-using Client.Utils;
+using Client.Functions.Utils;
 using Object = UnityEngine.Object;
+using Utilities = Client.Functions.Utils.Utilities;
 
-namespace Client
+namespace Client.Functions
 {
     public class Orbit
     {
-        private static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
-        private static List<Player> Playerlist;
         private static ICustomShowableLayoutedMenu SelectionMenu;
         private static List<OrbitItem> Orbits;
-        private static Player CurrentPlayer;
+        private static VRCPlayer CurrentPlayer;
         private static bool patch;
 
         public static ICustomShowableLayoutedMenu OrbitMenu;
@@ -59,7 +58,6 @@ namespace Client
         public static void OnUiManagerInit()
         {
             NetworkEvents.OnLeave += OnLeave;
-            NetworkEvents.OnJoin += OnJoin;
             NetworkEvents.OnInstanceChange += OnInstanceChange;
         }
 
@@ -88,22 +86,9 @@ namespace Client
             Timer += Time.deltaTime;
         }
 
-        private static void OnInstanceChange(ApiWorld world, ApiWorldInstance instance)
-        {
-            Playerlist = new List<Player>();
-            StopOrbit();
-        }
+        private static void OnInstanceChange(ApiWorld world, ApiWorldInstance instance) => StopOrbit();
 
-        private static void OnJoin(Player player)
-        {
-            Playerlist.Add(player);
-        }
-
-        private static void OnLeave(Player player)
-        {
-            Playerlist.Remove(player);
-            if (CurrentPlayer == player) StopOrbit();
-        }
+        private static void OnLeave(Player player) { if (CurrentPlayer == player) StopOrbit(); }
 
         private static void SelectOrbit(string Type)
         {
@@ -112,11 +97,12 @@ namespace Client
             if (Type == "Circular") rotType = RotType.CircularRot;
             else if (Type == "Cylindrical") rotType = RotType.CylindricalRot;
             else rotType = RotType.SphericalRot;
-            foreach (var player in Playerlist) SelectionMenu.AddSimpleButton($"{player.prop_APIUser_0.displayName}", () => ToOrbit(player));
+            foreach (var player in Object.FindObjectsOfType<VRCPlayer>()) 
+                SelectionMenu.AddSimpleButton($"{player.prop_Player_0.prop_APIUser_0.displayName}", () => ToOrbit(player));
             SelectionMenu.Show();
         }
 
-        private static void ToOrbit(Player Player)
+        private static void ToOrbit(VRCPlayer Player)
         {
             if (CurrentPlayer != null) StopOrbit();
             CurrentPlayer = Player;
@@ -158,10 +144,10 @@ namespace Client
             Item.GetComponent<Rigidbody>().isKinematic = true;
             Item.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
             Item.gameObject.SetActive(true);
-            if (GetOwner().playerId != GetLocalVRCPlayerApi().playerId)
+            if (GetOwner().playerId != Utilities.GetLocalVRCPlayerApi().playerId)
             {
                 Item.GetComponent<VRC_Pickup>().currentlyHeldBy = null; 
-                Networking.SetOwner(GetLocalVRCPlayerApi(), Item.gameObject);
+                Networking.SetOwner(Utilities.GetLocalVRCPlayerApi(), Item.gameObject);
             }
         }
 
@@ -176,7 +162,7 @@ namespace Client
 
         private static Vector3 GetCenter()
         {
-            Vector3 Head = TransformOfBone(CurrentPlayer, HumanBodyBones.Head).position;
+            Vector3 Head = Utilities.GetBoneTransform(CurrentPlayer.prop_Player_0, HumanBodyBones.Head).position;
             if (rotType == RotType.CircularRot) return Head;
             else
             {
@@ -184,19 +170,6 @@ namespace Client
                 PlayerHeight = (Head - Pos).y;
                 return Pos;
             }
-        }
-
-        // I took this from someone else from the mod community and I really don't remember who exactly to give the credits :( I'm very sorry.
-        private static Transform TransformOfBone(Player player, HumanBodyBones bone)
-        {
-            Transform playerPosition = player.transform;
-            VRCAvatarManager avatarManager = player.prop_VRCPlayer_0.prop_VRCAvatarManager_0;
-            if (!avatarManager) return playerPosition;
-            Animator animator = avatarManager.field_Private_Animator_0;
-            if (!animator) return playerPosition;
-            Transform boneTransform = animator.GetBoneTransform(bone);
-            if (!boneTransform) return playerPosition;
-            return boneTransform;
         }
     }
 }
