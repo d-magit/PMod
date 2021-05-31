@@ -4,7 +4,6 @@ using System;
 using Harmony;
 using UnhollowerRuntimeLib;
 using MelonLoader;
-using UnityEngine;
 using UIExpansionKit.API;
 
 namespace Client
@@ -27,10 +26,12 @@ namespace Client
         {
             Instance = this;
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
-            UserInteractUtils.OnApplicationStart();
-            ItemGrabber.OnApplicationStart();
             NativePatches.OnApplicationStart();
+            ItemGrabber.OnApplicationStart();
+            LocalToMaster.OnApplicationStart();
             Orbit.OnApplicationStart();
+            PhotonFreeze.OnApplicationStart();
+            UserInteractUtils.OnApplicationStart();
             ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
             MelonLogger.Msg(ConsoleColor.Red, "Personal Client Loaded Successfully!");
         }
@@ -49,19 +50,28 @@ namespace Client
                 if (ItemGrabber.IsOn) ItemGrabber.PickupMenu.Show();
                 else RiskyFuncAlert("ItemGrabber");
             });
-            ClientMenu.AddSimpleButton("PhotonFreeze", () => { Freeze.ShowFreezeMenu(); });
+            ClientMenu.AddSimpleButton("PhotonFreeze", () => 
+            {
+                if (PhotonFreeze.IsOn) PhotonFreeze.ShowFreezeMenu();
+                else RiskyFuncAlert("PhotonFreeze");
+            });
+            ClientMenu.AddSimpleButton("LocalToMaster", () =>
+            {
+                if (LocalToMaster.IsOn) LocalToMaster.ShowLocalToMasterMenu();
+                else RiskyFuncAlert("LocalToMaster");
+            });
             ClientMenu.Show();
         }
 
-        public static void RiskyFuncAlert(string FuncName) => HarmonyPatches.PopupV2(
-                FuncName,
-                $"You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
-                "Close",
-                new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
+        public static void RiskyFuncAlert(string FuncName) => Methods.PopupV2(
+            FuncName,
+            "You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
+            "Close",
+            new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
 
         public override void VRChat_OnUiManagerInit()
         {
-            listener = GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").AddComponent<EnableDisableListener>();
+            listener = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu").gameObject.AddComponent<EnableDisableListener>();
             NetworkEvents.OnUiManagerInit();
             AvatarFromID.OnUiManagerInit();
             ForceClone.OnUiManagerInit();
@@ -72,7 +82,9 @@ namespace Client
         public override void OnPreferencesSaved()
         {
             ItemGrabber.OnPreferencesSaved();
+            LocalToMaster.OnPreferencesSaved();
             Orbit.OnPreferencesSaved();
+            PhotonFreeze.OnPreferencesSaved();
             UserInteractUtils.OnPreferencesSaved();
         }
 

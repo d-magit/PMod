@@ -82,6 +82,14 @@
       <HintPath>..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCCore-Standalone.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="VRCSDK2">
+      <HintPath>..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCSDK2.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="VRCSDK3">
+      <HintPath>..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCSDK3.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="VRCSDKBase">
       <HintPath>..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCSDKBase.dll</HintPath>
       <Private>False</Private>
@@ -90,7 +98,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Functions\AvatarFromID.cs" />
-    <Compile Include="Functions\Freeze.cs" />
+    <Compile Include="Functions\PhotonFreeze.cs" />
+    <Compile Include="Functions\LocalToMaster.cs" />
+    <Compile Include="Functions\Safety.cs" />
     <Compile Include="Functions\Utils\Patches.cs" />
     <Compile Include="Functions\Utils\RubyButtonAPI.cs" />
     <Compile Include="Functions\Utils\Utilities.cs" />

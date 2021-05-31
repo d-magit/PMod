@@ -9,7 +9,7 @@ using VRC.Core;
 
 namespace Client.Functions
 {
-    public class UserInteractUtils
+    internal static class UserInteractUtils
     {
         private static string ToPath;
 
@@ -27,7 +27,7 @@ namespace Client.Functions
         public static void OnUiManagerInit()
         {
             ActionMenu = new QMNestedButton("UserInteractMenu", 0, 0, "<color=#ff0000>Client's\n</color>" + "Actions", "Open the Actions Menu", null, null, null, null);
-            QMSingleButton CopyAssetButton = new QMSingleButton(ActionMenu, 1, 0, "Copy\nAsset", () => { CopyAsset(); }, 
+            QMSingleButton CopyAssetButton = new QMSingleButton(ActionMenu, 1, 0, "Copy\nAsset", () => CopyAsset(), 
                 "Copies the asset file to the destined folder.", null, null);
         }
 
@@ -38,7 +38,7 @@ namespace Client.Functions
             try
             {
                 ToCopyAsset(avatar);
-                HarmonyPatches.PopupV2(
+                Methods.PopupV2(
                     "Copy Asset", 
                     $"Successfully copied avatar \"{avatar.name}\" to folder \"{ToPath}\"!", 
                     "Close", 
@@ -46,7 +46,7 @@ namespace Client.Functions
             }
             catch (Exception e)
             {
-                HarmonyPatches.PopupV2(
+                Methods.PopupV2(
                     "Copy Asset", 
                     $"Failed to copy avatar \"{avatar.name}\" :(\nIf you see this message, please send the creator your last Melon log.", 
                     "Close", 

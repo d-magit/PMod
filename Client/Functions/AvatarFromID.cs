@@ -6,7 +6,7 @@ using Client.Functions.Utils;
 
 namespace Client.Functions
 {
-    public class AvatarFromID
+    internal static class AvatarFromID
     {
         public static void OnUiManagerInit()
         {

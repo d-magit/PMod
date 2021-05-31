@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Client.Functions
 {
-    public class ItemGrabber
+    internal static class ItemGrabber
     {
         private static ICustomShowableLayoutedMenu SelectionMenu;
         private static VRC_Pickup[] Pickups;
@@ -69,7 +69,7 @@ namespace Client.Functions
             else if (Type == "Unpatch")
             {
                 SelectionMenu.AddSimpleButton("Unpatch All", () => UnpatchAll());
-                if (PreviousStates.Count != 0) foreach (var Pickup in PreviousStates.Keys) SelectionMenu.AddSimpleButton(Pickup.name, () => Unpatch(Pickup));
+                if (PreviousStates.Count != 0) foreach (var Pickup in PreviousStates.Keys) SelectionMenu.AddSimpleButton(Pickup.name, () => { Unpatch(Pickup); Select("Unpatch"); });
             }
             else
             {
@@ -109,7 +109,6 @@ namespace Client.Functions
                 Item.gameObject.SetActive(PreviousState[3]);
                 PreviousStates.Remove(Item);
             }
-            Select("Unpatch");
         }
 
         private static void UnpatchAll() 

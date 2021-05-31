@@ -4,7 +4,7 @@ using Object = UnityEngine.Object;
 
 namespace Client.Functions
 {
-    public class EmmAllower
+    internal static class EmmAllower
     {
         public static void OnSceneWasLoaded()
         {

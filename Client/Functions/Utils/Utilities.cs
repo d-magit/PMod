@@ -1,6 +1,9 @@
-﻿using System;
+﻿using MelonLoader;
+using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using UnhollowerBaseLib;
 using UnhollowerRuntimeLib.XrefScans;
 using UnityEngine;
 using VRC;
@@ -14,7 +17,15 @@ namespace Client.Functions.Utils
     {
         public static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
         public static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
-        public static VRCPlayer GetPlayerFromID(string id) => ((Player)HarmonyPatches.PlayerFromID.Invoke(null, new object[] { id })).prop_VRCPlayer_0;
+        public static VRCPlayer GetPlayerFromID(string id) => ((Player)Methods.PlayerFromID.Invoke(null, new object[] { id })).prop_VRCPlayer_0;
+        public static bool IsSDK2World() => GetWorldSDKVersion() == WorldSDKVersion.SDK2;
+        private enum WorldSDKVersion
+        {
+            None,
+            SDK2,
+            SDK3
+        }
+
         public static void ChangeToAVByID(string id) => new PageAvatar
         {
             field_Public_SimpleAvatarPedestal_0 = new SimpleAvatarPedestal
@@ -25,6 +36,14 @@ namespace Client.Functions.Utils
                 }
             }
         }.ChangeToSelectedAvatar();
+
+        private static WorldSDKVersion GetWorldSDKVersion()
+        {
+            if (!VRC_SceneDescriptor._instance) return WorldSDKVersion.None;
+            if (VRC_SceneDescriptor._instance.TryCast<VRCSDK2.VRC_SceneDescriptor>() != null) return WorldSDKVersion.SDK2;
+            if (VRC_SceneDescriptor._instance.TryCast<VRC.SDK3.Components.VRCSceneDescriptor>() != null) return WorldSDKVersion.SDK3;
+            return WorldSDKVersion.None;
+        }
 
         public static bool ContainsStr(MethodBase methodBase, string match)
         {
@@ -37,6 +56,7 @@ namespace Client.Functions.Utils
             catch { }
             return false;
         }
+
         public static bool WasUsedBy(MethodBase methodBase, string methodName)
         {
             try
@@ -60,5 +80,20 @@ namespace Client.Functions.Utils
             if (!boneTransform) return playerPosition;
             return boneTransform;
         }
+    }
+
+    internal static class NativePatchUtils
+    {
+        public static unsafe TDelegate Patch<TDelegate>(MethodInfo originalMethod, IntPtr patchDetour)
+            where TDelegate : Delegate
+        {
+            IntPtr original = *(IntPtr*)(IntPtr)UnhollowerUtils.GetIl2CppMethodInfoPointerFieldForGeneratedMethod(originalMethod).GetValue(null);
+            MelonUtils.NativeHookAttach((IntPtr)(&original), patchDetour);
+            return Marshal.GetDelegateForFunctionPointer<TDelegate>(original);
+        }
+
+        public static IntPtr GetDetour<TClass>(string patchName)
+            where TClass : class => typeof(TClass).GetMethod(patchName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)!
+            .MethodHandle.GetFunctionPointer();
     }
 }
