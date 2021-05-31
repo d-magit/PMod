@@ -52,10 +52,10 @@ namespace Client.Functions.Utils
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr FreezeSetupDelegate(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
         private delegate void ValidateAndTriggerEventDelegate(IntPtr instancePtr, IntPtr senderPtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
-        private delegate void LocalToMasterSetupDelegate(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
+        private delegate void LocalToGlobalSetupDelegate(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
         private static FreezeSetupDelegate freezeSetupDelegate;
         private static ValidateAndTriggerEventDelegate validateAndTriggerEventDelegate;
-        private static LocalToMasterSetupDelegate localToMasterSetupDelegate;
+        private static LocalToGlobalSetupDelegate localToGlobalSetupDelegate;
         public static void OnApplicationStart()
         {
             unsafe
@@ -80,9 +80,9 @@ namespace Client.Functions.Utils
                            }.Select(x => x.FullName))),
                     NativePatchUtils.GetDetour<NativePatches>(nameof(ValidateAndTriggerEvent)));
 
-                localToMasterSetupDelegate = NativePatchUtils.Patch<LocalToMasterSetupDelegate>(typeof(VRC_EventHandler)
+                localToGlobalSetupDelegate = NativePatchUtils.Patch<LocalToGlobalSetupDelegate>(typeof(VRC_EventHandler)
                     .GetMethod(nameof(VRC_EventHandler.InternalTriggerEvent)),
-                    NativePatchUtils.GetDetour<NativePatches>(nameof(LocalToMasterSetup)));
+                    NativePatchUtils.GetDetour<NativePatches>(nameof(LocalToGlobalSetup)));
             }
         }
 
@@ -129,15 +129,15 @@ namespace Client.Functions.Utils
             }
         }
 
-        private static void LocalToMasterSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
+        private static void LocalToGlobalSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
         {
             try
             {
-                if (LocalToMaster.IsForceMaster && broadcast == VRC_EventHandler.VrcBroadcastType.Local)
+                if (LocalToGlobal.IsForceGlobal && broadcast == VRC_EventHandler.VrcBroadcastType.Local)
                 {
                     VRC_EventHandler.VrcEvent @event = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC_EventHandler.VrcEvent>(eventPtr);
-                    MelonLogger.Msg(ConsoleColor.Green, $"Successfully patched local event {@event.ParameterString} into Master-type event.");
-                    broadcast = VRC_EventHandler.VrcBroadcastType.Master;
+                    MelonLogger.Msg(ConsoleColor.Green, $"Successfully patched local event {@event.ParameterString} into AlwaysUnbuffered event.");
+                    broadcast = VRC_EventHandler.VrcBroadcastType.AlwaysUnbuffered;
                 }
             }
             catch (Exception e)
@@ -145,7 +145,7 @@ namespace Client.Functions.Utils
                 MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in Local to Master Setup Patch");
                 MelonLogger.Error($"{e}");
             }
-            localToMasterSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
+            localToGlobalSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
         }
     }
 }

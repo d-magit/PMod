@@ -28,7 +28,7 @@ namespace Client
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
             NativePatches.OnApplicationStart();
             ItemGrabber.OnApplicationStart();
-            LocalToMaster.OnApplicationStart();
+            LocalToGlobal.OnApplicationStart();
             Orbit.OnApplicationStart();
             PhotonFreeze.OnApplicationStart();
             UserInteractUtils.OnApplicationStart();
@@ -57,7 +57,7 @@ namespace Client
             });
             ClientMenu.AddSimpleButton("LocalToMaster", () =>
             {
-                if (LocalToMaster.IsOn) LocalToMaster.ShowLocalToMasterMenu();
+                if (LocalToGlobal.IsOn) LocalToGlobal.ShowLocalToMasterMenu();
                 else RiskyFuncAlert("LocalToMaster");
             });
             ClientMenu.Show();
@@ -82,7 +82,7 @@ namespace Client
         public override void OnPreferencesSaved()
         {
             ItemGrabber.OnPreferencesSaved();
-            LocalToMaster.OnPreferencesSaved();
+            LocalToGlobal.OnPreferencesSaved();
             Orbit.OnPreferencesSaved();
             PhotonFreeze.OnPreferencesSaved();
             UserInteractUtils.OnPreferencesSaved();
