@@ -20,7 +20,7 @@ namespace Client.Functions
 
         public static void OnApplicationStart()
         {
-            MelonPreferences.CreateCategory("PhotonFreeze", "Photon Freeze");
+            MelonPreferences.CreateCategory("PhotonFreeze", "PM - Photon Freeze");
             MelonPreferences.CreateEntry("PhotonFreeze", "IsOn", false, "Activate Mod? This is a risky function.");
         }
 
