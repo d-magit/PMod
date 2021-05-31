@@ -14,8 +14,7 @@ namespace Client.Functions.Utils
     {
         public static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
         public static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
-        public static VRCPlayer GetPlayerFromID(string id) => ((Player)HarmonyPatches.PlayerFromID.Invoke(null, new object[] { id }))
-                    .prop_VRCPlayer_0;
+        public static VRCPlayer GetPlayerFromID(string id) => ((Player)HarmonyPatches.PlayerFromID.Invoke(null, new object[] { id })).prop_VRCPlayer_0;
         public static void ChangeToAVByID(string id) => new PageAvatar
         {
             field_Public_SimpleAvatarPedestal_0 = new SimpleAvatarPedestal
