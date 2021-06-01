@@ -1,5 +1,7 @@
 ﻿using MelonLoader;
 using System;
+using System.Collections;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -17,7 +19,7 @@ namespace Client.Functions.Utils
     {
         public static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
         public static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
-        public static VRCPlayer GetPlayerFromID(string id) => ((Player)Methods.PlayerFromID.Invoke(null, new object[] { id })).prop_VRCPlayer_0;
+        public static Player GetPlayerFromID(string id) => (Player)Methods.PlayerFromID.Invoke(null, new object[] { id });
         public static bool IsSDK2World() => GetWorldSDKVersion() == WorldSDKVersion.SDK2;
         private enum WorldSDKVersion
         {
@@ -95,5 +97,36 @@ namespace Client.Functions.Utils
         public static IntPtr GetDetour<TClass>(string patchName)
             where TClass : class => typeof(TClass).GetMethod(patchName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)!
             .MethodHandle.GetFunctionPointer();
+    }
+
+    internal class Timer
+    {
+        public bool IsFrozen;
+        private Stopwatch timer;
+
+        public Timer()
+        {
+            IsFrozen = true;
+            RestartTimer();
+        }
+
+        public void RestartTimer()
+        {
+            timer = Stopwatch.StartNew();
+            if (IsFrozen) MelonCoroutines.Start(Checker());
+        }
+
+        private IEnumerator Checker()
+        {
+            IsFrozen = false;
+            FrozenPlayersManager.NametagSet(this);
+
+            while (timer.ElapsedMilliseconds <= 1000)
+                yield return null;
+
+            IsFrozen = true;
+            FrozenPlayersManager.NametagSet(this);
+            yield break;
+        }
     }
 }
