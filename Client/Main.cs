@@ -5,6 +5,7 @@ using Harmony;
 using UnhollowerRuntimeLib;
 using MelonLoader;
 using UIExpansionKit.API;
+using System.Collections;
 
 namespace Client
 {
@@ -25,6 +26,7 @@ namespace Client
         public override void OnApplicationStart()
         {
             Instance = this;
+            MelonCoroutines.Start(WaitForUIInit());
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
             NativePatches.OnApplicationStart();
             FrozenPlayersManager.OnApplicationStart();
@@ -66,14 +68,18 @@ namespace Client
             "Close",
             new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
 
-        public override void VRChat_OnUiManagerInit()
+        public static IEnumerator WaitForUIInit()
         {
+            while (QuickMenu.prop_QuickMenu_0 == null)
+                yield return null;
+
             listener = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu").gameObject.AddComponent<EnableDisableListener>();
             NetworkEvents.OnUiManagerInit();
             AvatarFromID.OnUiManagerInit();
             ForceClone.OnUiManagerInit();
             Orbit.OnUiManagerInit();
             UserInteractUtils.OnUiManagerInit();
+            yield break;
         }
 
         public override void OnPreferencesSaved()

@@ -103,6 +103,7 @@ namespace Client.Functions.Utils
     {
         public bool IsFrozen;
         private Stopwatch timer;
+        public GameObject text;
 
         public Timer()
         {
