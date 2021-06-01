@@ -99,8 +99,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Functions\AvatarFromID.cs" />
     <Compile Include="Functions\PhotonFreeze.cs" />
-    <Compile Include="Functions\LocalToGlobal.cs" />
-    <Compile Include="Functions\Safety.cs" />
+    <Compile Include="Functions\Triggers.cs" />
     <Compile Include="Functions\Utils\Patches.cs" />
     <Compile Include="Functions\Utils\RubyButtonAPI.cs" />
     <Compile Include="Functions\Utils\Utilities.cs" />
