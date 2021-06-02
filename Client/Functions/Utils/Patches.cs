@@ -78,7 +78,7 @@ namespace Client.Functions.Utils
 
                     OnPlayerNetDecodeDelegate replacement = (instancePointer, objectsPointer, objectIndex, sendTime, nativeMethodPointer) => PlayerNetPatch(instancePointer, objectsPointer, objectIndex, sendTime, nativeMethodPointer, originalDecodeDelegate);
 
-                    dontGarbageCollectDelegates.Add(replacement); // Add to list to prevent from being garbage collected
+                    dontGarbageCollectDelegates.Add(replacement);
 
                     MelonUtils.NativeHookAttach((IntPtr)(&originalMethodPointer), Marshal.GetFunctionPointerForDelegate(replacement));
 
@@ -90,23 +90,18 @@ namespace Client.Functions.Utils
         private static object[] LastSent;
         private static IntPtr FreezeSetup(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
         {
-            if (EType == 7)
+            if (EType == 7 && Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] == PhotonFreeze.PhotonID)
             {
                 try
                 {
                     if (!PhotonFreeze.IsFreeze)
-                    {
                         LastSent = new object[] { EType, Obj, EOptions, SOptions };
-                    }
                     else
-                    {
-                        return IntPtr.Zero;
-                        //return freezeSetupDelegate(LastSent[0], LastSent[1], LastSent[2], LastSent[3], nativeMethodInfo);
-                    }
+                        return IntPtr.Zero; // freezeSetupDelegate((byte)LastSent[0], (IntPtr)LastSent[1], (IntPtr)LastSent[2], (IntPtr)LastSent[3], nativeMethodInfo);
                 }
                 catch (Exception e)
                 {
-                    MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in Freeze Patch");
+                    MelonLogger.Warning("Something went wrong in Freeze Patch");
                     MelonLogger.Error($"{e}");
                 }
             }
@@ -127,7 +122,7 @@ namespace Client.Functions.Utils
             }
             catch (Exception e)
             {
-                MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in Local to Master Setup Patch");
+                MelonLogger.Warning("Something went wrong in Local to Master Setup Patch");
                 MelonLogger.Error($"{e}");
             }
             localToGlobalSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
@@ -152,7 +147,7 @@ namespace Client.Functions.Utils
             }
             catch (Exception e)
             {
-                MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in OnPlayerNetPatch");
+                MelonLogger.Warning("Something went wrong in OnPlayerNetPatch");
                 MelonLogger.Error($"{e}");
             }
             return result;
