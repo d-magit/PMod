@@ -24,12 +24,14 @@ namespace Client.Functions
             {
                 Timer timer = new();
                 EntryDict.Add(id, timer);
-                var text = player.transform.Find("Player Nameplate/Canvas/Nameplate/Contents/Main/Text Container/Sub-Text").gameObject;
+                var text = player.transform.Find("Player Nameplate/Canvas/Nameplate/Contents/Main/Text Container/Sub Text").gameObject;
                 timer.text = Object.Instantiate(text, text.transform.parent);
+                Object.DestroyImmediate(timer.text.transform.Find("Icon").gameObject);
                 timer.text.transform.SetSiblingIndex(1);
-                var TM = timer.text.GetComponent<TextMeshProUGUI>();
-                TM.text = "Frozen";
+                var TM = timer.text.GetComponentInChildren<TextMeshProUGUI>();
+                TM.text = "Frozen ";
                 TM.color = Color.cyan;
+                timer.text.SetActive(false);
             }
         }
 
@@ -39,18 +41,19 @@ namespace Client.Functions
         {
             try
             {
-                var rect = entry.text.transform.parent.Find("Name").GetComponent<RectTransform>();
+                var rect = entry.text.transform.GetComponent<RectTransform>();
                 if (entry.IsFrozen)
                 {
-                    rect.sizeDelta = new(rect.sizeDelta.x, rect.sizeDelta.y - 30);
+                    rect.sizeDelta = new(rect.sizeDelta.x, rect.sizeDelta.y - 20);
                     entry.text?.SetActive(true);
                 }
                 else
                 {
-                    rect.sizeDelta = new(rect.sizeDelta.x, rect.sizeDelta.y + 30);
+                    rect.sizeDelta = new(rect.sizeDelta.x, rect.sizeDelta.y + 20);
                     entry.text?.SetActive(false);
                 }
-            } catch { }
+            }
+            catch { }
         }
     }
 }
