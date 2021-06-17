@@ -13,7 +13,6 @@ namespace Client.Functions.Utils
         public static event Action<Player> OnLeave;
         public static event Action<ApiWorld, ApiWorldInstance> OnInstanceChange;
         public static event Action<Photon.Realtime.Player> OnMasterChanged;
-        public static event Action<ApiAvatar, VRCAvatarManager> OnAvatarChange;
 
         private static bool SeenFire;
         private static bool AFiredFirst;
@@ -42,8 +41,6 @@ namespace Client.Functions.Utils
 
         private static void OnInstanceChangeMethod(ApiWorld __0, ApiWorldInstance __1) => OnInstanceChange?.Invoke(__0, __1);
 
-        private static void OnAvatarChangeMethod(ApiAvatar __0, VRCAvatarManager __instance) => OnAvatarChange?.Invoke(__0, __instance);
-
         private static void OnMasterChange(Photon.Realtime.Player __0) => OnMasterChanged?.Invoke(__0);
 
         private static void AddDelegate(VRCEventDelegate<Player> field, Action<Player> eventHandler) => field.field_Private_HashSet_1_UnityAction_1_T_0.Add(eventHandler);
@@ -57,8 +54,6 @@ namespace Client.Functions.Utils
                 new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnMasterChange), BindingFlags.NonPublic | BindingFlags.Static)));
             Main.HarmonyInstance.Patch(typeof(RoomManager).GetMethod("Method_Public_Static_Boolean_ApiWorld_ApiWorldInstance_String_Int32_0"), null, 
                 new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnInstanceChangeMethod), BindingFlags.NonPublic | BindingFlags.Static)));
-            Main.HarmonyInstance.Patch(typeof(VRCAvatarManager).GetMethods().First(mi => mi.Name.StartsWith("Method_Public_Boolean_ApiAvatar_String_Single_")), null, 
-                new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnAvatarChangeMethod), BindingFlags.NonPublic | BindingFlags.Static)));
         }
     }
 }
