@@ -10,18 +10,13 @@ namespace Client.Functions
     internal static class Triggers
     {
         private static bool IsForceGlobal = false;
-        public static bool IsOn;
+        public static MelonPreferences_Entry<bool> IsOn;
         public static bool IsAlwaysForceGlobal = false;
 
         public static void OnApplicationStart()
         {
             MelonPreferences.CreateCategory("LocalToGlobal", "PM - Local To Global");
-            MelonPreferences.CreateEntry("LocalToGlobal", "IsOn", false, "Activate Mod? This is a risky function.");
-        }
-
-        public static void OnPreferencesSaved()
-        {
-            IsOn = MelonPreferences.GetEntryValue<bool>("LocalToGlobal", "IsOn");
+            IsOn = MelonPreferences.CreateEntry("LocalToGlobal", "IsOn", false, "Activate Mod? This is a risky function.");
         }
 
         public static void ShowTriggersMenu()
@@ -30,12 +25,12 @@ namespace Client.Functions
             TriggersMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             string btnName = "LocalToGlobal - ";
             Action action = null;
-            if (IsOn && Utils.Utilities.GetWorldSDKVersion() == Utils.Utilities.WorldSDKVersion.SDK2)
+            if (IsOn.Value && Utils.Utilities.GetWorldSDKVersion() == Utils.Utilities.WorldSDKVersion.SDK2)
             {
                 btnName += "On";
                 action = () => ShowLocalToGlobalMenu();
             }
-            else if (!IsOn)
+            else if (!IsOn.Value)
             {
                 btnName += "Off";
                 action = () => Main.RiskyFuncAlert("LocalToGlobal");

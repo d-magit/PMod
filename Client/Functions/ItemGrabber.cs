@@ -16,39 +16,29 @@ namespace Client.Functions
         private static ICustomShowableLayoutedMenu SelectionMenu;
         private static VRC_Pickup[] Pickups;
         private static Dictionary<VRC_Pickup, bool[]> PreviousStates = new();
-        private static float min_distance;
-        private static bool patch_all;
-        private static bool take_ownership;
+        private static MelonPreferences_Entry<float> min_distance;
+        private static MelonPreferences_Entry<bool> patch_all;
+        private static MelonPreferences_Entry<bool> take_ownership;
         public static ICustomShowableLayoutedMenu PickupMenu;
-        public static bool IsOn;
-
+        public static MelonPreferences_Entry<bool> IsOn;
 
         public static void OnApplicationStart()
         {
             MelonPreferences.CreateCategory("ItemGrabber", "PM - Item Grabber");
-            MelonPreferences.CreateEntry("ItemGrabber", "IsOn", false, "Activate Mod? This is a risky function.");
-            MelonPreferences.CreateEntry("ItemGrabber", "GrabDistance", -1.0f, "Distance (meters) for grabbing all, set to -1 for unlimited.");
-            MelonPreferences.CreateEntry("ItemGrabber", "PatchAllOnLoad", false, "Patch All on Scene Load");
-            MelonPreferences.CreateEntry("ItemGrabber", "TakeOwnership", true, "Take Ownership of Object on Grab");
+            IsOn = MelonPreferences.CreateEntry("ItemGrabber", "IsOn", false, "Activate Mod? This is a risky function.");
+            min_distance = MelonPreferences.CreateEntry("ItemGrabber", "GrabDistance", -1.0f, "Distance (meters) for grabbing all, set to -1 for unlimited.");
+            patch_all = MelonPreferences.CreateEntry("ItemGrabber", "PatchAllOnLoad", false, "Patch All on Scene Load");
+            take_ownership = MelonPreferences.CreateEntry("ItemGrabber", "TakeOwnership", true, "Take Ownership of Object on Grab");
             PickupMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
             PickupMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             PickupMenu.AddSimpleButton("Patch", () => Select("Patch"));
             PickupMenu.AddSimpleButton("Unpatch", () => Select("Unpatch"));
             PickupMenu.AddSimpleButton("Grab", () => Select("Grab"));
-            OnPreferencesSaved();
-        }
-
-        public static void OnPreferencesSaved()
-        {
-            IsOn = MelonPreferences.GetEntryValue<bool>("ItemGrabber", "IsOn");
-            min_distance = MelonPreferences.GetEntryValue<float>("ItemGrabber", "GrabDistance");
-            patch_all = MelonPreferences.GetEntryValue<bool>("ItemGrabber", "PatchAllOnLoad");
-            take_ownership = MelonPreferences.GetEntryValue<bool>("ItemGrabber", "TakeOwnership");
         }
 
         public static void OnSceneWasLoaded()
         {
-            if (patch_all)
+            if (patch_all.Value)
             {
                 Pickups = Object.FindObjectsOfType<VRC_Pickup>();
                 PatchAll();
@@ -122,7 +112,7 @@ namespace Client.Functions
             if (Item == null) foreach (var Pickup in Pickups)
             {
                 float dist = Vector3.Distance(Utilities.GetLocalVRCPlayer().transform.position, Pickup.transform.position);
-                if (min_distance == -1 || dist <= min_distance) PickupItem(Pickup);
+                if (min_distance.Value == -1 || dist <= min_distance.Value) PickupItem(Pickup);
             }
             else PickupItem(Item);
         }
@@ -132,7 +122,7 @@ namespace Client.Functions
             try
             {
                 Patch(Item);
-                if (Networking.GetOwner(Item.gameObject).playerId != Utilities.GetLocalVRCPlayerApi().playerId && take_ownership)
+                if (Networking.GetOwner(Item.gameObject).playerId != Utilities.GetLocalVRCPlayerApi().playerId && take_ownership.Value)
                 {
                     Item.GetComponent<VRC_Pickup>().currentlyHeldBy = null;
                     Networking.SetOwner(Utilities.GetLocalVRCPlayerApi(), Item.gameObject);

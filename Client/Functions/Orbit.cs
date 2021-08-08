@@ -16,7 +16,7 @@ namespace Client.Functions
         private static ICustomShowableLayoutedMenu SelectionMenu;
         private static List<OrbitItem> Orbits;
         private static VRCPlayer CurrentPlayer;
-        private static bool patch;
+        private static MelonPreferences_Entry<bool> patch;
 
         public static ICustomShowableLayoutedMenu OrbitMenu;
         public static UnhollowerBaseLib.Il2CppArrayBase<VRC_Pickup> Pickups;
@@ -25,9 +25,12 @@ namespace Client.Functions
         public static Vector3 OrbitCenter;
         public static float PlayerHeight;
         public static float Timer = 0f;
-        public static float radius;
-        public static float speed;
-        public static bool IsOn;
+        public static MelonPreferences_Entry<float> radius;
+        public static MelonPreferences_Entry<float> speed;
+        public static MelonPreferences_Entry<float> rotx;
+        public static MelonPreferences_Entry<float> roty;
+        public static MelonPreferences_Entry<float> rotz;
+        public static MelonPreferences_Entry<bool> IsOn;
         public static RotType rotType;
         public enum RotType
         {
@@ -39,13 +42,13 @@ namespace Client.Functions
         public static void OnApplicationStart()
         {
             MelonPreferences.CreateCategory("Orbit", "PM - Orbit");
-            MelonPreferences.CreateEntry("Orbit", "IsOn", false, "Activate Mod? This is a risky function.");
-            MelonPreferences.CreateEntry("Orbit", "Radius", 1.0f, "Radius");
-            MelonPreferences.CreateEntry("Orbit", "RotationX", 0.0f, "X Rotation");
-            MelonPreferences.CreateEntry("Orbit", "RotationY", 0.0f, "Y Rotation");
-            MelonPreferences.CreateEntry("Orbit", "RotationZ", 0.0f, "Z Rotation");
-            MelonPreferences.CreateEntry("Orbit", "Speed", 1.0f, "Speed");
-            MelonPreferences.CreateEntry("Orbit", "Patch", true, "Patch items on Orbit");
+            IsOn = MelonPreferences.CreateEntry("Orbit", "IsOn", false, "Activate Mod? This is a risky function.");
+            radius = MelonPreferences.CreateEntry("Orbit", "Radius", 1.0f, "Radius");
+            speed = MelonPreferences.CreateEntry("Orbit", "Speed", 1.0f, "Speed");
+            patch = MelonPreferences.CreateEntry("Orbit", "Patch", true, "Patch items on Orbit");
+            rotx = MelonPreferences.CreateEntry("Orbit", "RotationX", 0.0f, "X Rotation");
+            roty = MelonPreferences.CreateEntry("Orbit", "RotationY", 0.0f, "Y Rotation");
+            rotz = MelonPreferences.CreateEntry("Orbit", "RotationZ", 0.0f, "Z Rotation");
             OrbitMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu4Columns);
             OrbitMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             OrbitMenu.AddSimpleButton("Stop Orbit", () => StopOrbit());
@@ -55,20 +58,16 @@ namespace Client.Functions
             OnPreferencesSaved();
         }
 
+        public static void OnPreferencesSaved()
+        {
+            rotation = Quaternion.Euler(rotx.Value, 0, rotz.Value);
+            rotationy = Quaternion.Euler(0, roty.Value, 0);
+        }
+
         public static void OnUiManagerInit()
         {
             NetworkEvents.OnLeave += OnLeave;
             NetworkEvents.OnInstanceChange += OnInstanceChange;
-        }
-
-        public static void OnPreferencesSaved()
-        {
-            IsOn = MelonPreferences.GetEntryValue<bool>("Orbit", "IsOn");
-            radius = MelonPreferences.GetEntryValue<float>("Orbit", "Radius");
-            rotation = Quaternion.Euler(MelonPreferences.GetEntryValue<float>("Orbit", "RotationX"), 0, MelonPreferences.GetEntryValue<float>("Orbit", "RotationZ"));
-            rotationy = Quaternion.Euler(0, MelonPreferences.GetEntryValue<float>("Orbit", "RotationY"), 0);
-            speed = MelonPreferences.GetEntryValue<float>("Orbit", "Speed");
-            patch = MelonPreferences.GetEntryValue<bool>("Orbit", "Patch");
         }
 
         public static void OnUpdate()
@@ -78,7 +77,7 @@ namespace Client.Functions
                 OrbitCenter = GetCenter();
                 for (int i = 0; i < Pickups.Count; i++)
                 {
-                    if (patch) Patch(Pickups[i]);
+                    if (patch.Value) Patch(Pickups[i]);
                     Pickups[i].transform.position = Orbits[i].CurrentPos();
                     Pickups[i].transform.rotation = Orbits[i].CurrentRot();
                 }

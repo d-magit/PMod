@@ -19,32 +19,20 @@ namespace Client.Functions.Utils
             GetPopupV2Delegate(title, innertxt, buttontxt, buttonOk, action);
         private delegate void PopupV2Delegate(string title, string innertxt, string buttontxt, Il2CppSystem.Action buttonOk, Il2CppSystem.Action<VRCUiPopup> action = null);
         private static PopupV2Delegate popupV2Delegate;
-        private static PopupV2Delegate GetPopupV2Delegate
-        {
-            get
-            {
-                if (popupV2Delegate == null) popupV2Delegate = (PopupV2Delegate)Delegate.CreateDelegate(typeof(PopupV2Delegate), 
+        private static PopupV2Delegate GetPopupV2Delegate => 
+            popupV2Delegate ??= (PopupV2Delegate)Delegate.CreateDelegate(typeof(PopupV2Delegate), 
                     VRCUiPopupManager.prop_VRCUiPopupManager_0, 
                     typeof(VRCUiPopupManager).GetMethods()
                         .First(methodBase => methodBase.Name.StartsWith("Method_Public_Void_String_String_String_Action_Action_1_VRCUiPopup_") &&
                         !methodBase.Name.Contains("PDM") &&
                         Utilities.ContainsStr(methodBase, "UserInterface/MenuContent/Popups/StandardPopupV2") &&
                         Utilities.WasUsedBy(methodBase, "OpenSaveSearchPopup")));
-                return popupV2Delegate;
-            }
-        }
 
         private static MethodInfo playerFromID;
-        public static MethodInfo PlayerFromID
-        {
-            get
-            {
-                if (playerFromID == null) playerFromID = typeof(PlayerManager).GetMethods()
+        public static MethodInfo PlayerFromID =>
+                playerFromID ??= typeof(PlayerManager).GetMethods()
                     .Where(methodBase => methodBase.Name.StartsWith("Method_Public_Static_Player_String_") && !methodBase.Name.Contains("PDM"))
                     .OrderBy(method => UnhollowerSupport.GetIl2CppMethodCallerCount(method)).Last();
-                return playerFromID;
-            }
-        }
     }
 
     internal class NativePatches
