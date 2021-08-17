@@ -19,7 +19,7 @@ namespace Client.Modules
         private MelonPreferences_Entry<bool> patch;
 
         internal ICustomShowableLayoutedMenu OrbitMenu;
-        internal UnhollowerBaseLib.Il2CppArrayBase<VRC_Pickup> Pickups;
+        internal Il2CppSystem.Collections.Generic.List<VRC_Pickup> Pickups;
         internal Quaternion rotation;
         internal Quaternion rotationy;
         internal Vector3 OrbitCenter;
@@ -73,9 +73,17 @@ namespace Client.Modules
                 OrbitCenter = GetCenter();
                 for (int i = 0; i < Pickups.Count; i++)
                 {
-                    if (patch.Value) Patch(Pickups[i]);
-                    Pickups[i].transform.position = Orbits[i].CurrentPos();
-                    Pickups[i].transform.rotation = Orbits[i].CurrentRot();
+                    if (Pickups[i] == null)
+                    {
+                        Pickups.RemoveAt(i);
+                        Orbits.RemoveAt(i);
+                    }
+                    else
+                    {
+                        if (patch.Value) Patch(Pickups[i]);
+                        Pickups[i].transform.position = Orbits[i].CurrentPos();
+                        Pickups[i].transform.rotation = Orbits[i].CurrentRot();
+                    }
                 }
             }
             Timer += Time.deltaTime;
@@ -102,7 +110,7 @@ namespace Client.Modules
             if (CurrentPlayer != null) StopOrbit();
             CurrentPlayer = Player;
             Timer = 0f;
-            Pickups = Object.FindObjectsOfType<VRC_Pickup>();
+            Pickups = Object.FindObjectsOfType<VRC_Pickup>().Cast<Il2CppSystem.Collections.Generic.List<VRC_Pickup>>();
             OrbitCenter = GetCenter();
             Orbits = new List<OrbitItem>();
             for (int i = 0; i < Pickups.Count; i++)

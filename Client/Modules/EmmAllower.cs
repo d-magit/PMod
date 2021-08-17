@@ -10,12 +10,8 @@ namespace Client.Modules
         {
             Scene activeScene = SceneManager.GetActiveScene();
             foreach (GameObject rootGameObject in activeScene.GetRootGameObjects())
-            {
                 if (rootGameObject.name == "eVRCRiskFuncDisable")
-                {
                     Object.DestroyImmediate(rootGameObject);
-                }
-            }
             SceneManager.MoveGameObjectToScene(new GameObject("eVRCRiskFuncEnable"), activeScene);
         }
     }
