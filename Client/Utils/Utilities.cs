@@ -13,26 +13,28 @@ using VRC.Core;
 using VRC.SDKBase;
 using VRC.UI;
 
-namespace Client.Functions.Utils
+namespace Client.Utils
 {
     internal static class Utilities
     {
-        public static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
-        public static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
-        public static Player GetPlayerFromID(string id) => (Player)Methods.PlayerFromID.Invoke(null, new object[] { id });
-        public static void ChangeToAVByID(string id) => new PageAvatar
-            { field_Public_SimpleAvatarPedestal_0 = new SimpleAvatarPedestal
-            { field_Internal_ApiAvatar_0 = new ApiAvatar 
-            { id = id } } }
-        .ChangeToSelectedAvatar();
-        public enum WorldSDKVersion
+        internal static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
+        internal static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
+        internal static Player GetPlayerFromID(string id) => (Player)Methods.PlayerFromID.Invoke(null, new object[] { id });
+        internal static void ChangeToAVByID(string id)
+        {
+            var AviMenu = GameObject.Find("UserInterface/MenuContent/Screens/Avatar").GetComponent<PageAvatar>();
+            AviMenu.field_Public_SimpleAvatarPedestal_0.field_Internal_ApiAvatar_0 = new ApiAvatar { id = id };
+            AviMenu.ChangeToSelectedAvatar();
+        }
+
+        internal enum WorldSDKVersion
         {
             None,
             SDK2,
             SDK3
         }
 
-        public static WorldSDKVersion GetWorldSDKVersion()
+        internal static WorldSDKVersion GetWorldSDKVersion()
         {
             if (!VRC_SceneDescriptor._instance) return WorldSDKVersion.None;
             if (VRC_SceneDescriptor._instance.TryCast<VRCSDK2.VRC_SceneDescriptor>() != null) return WorldSDKVersion.SDK2;
@@ -40,7 +42,7 @@ namespace Client.Functions.Utils
             return WorldSDKVersion.None;
         }
 
-        public static bool ContainsStr(MethodBase methodBase, string match)
+        internal static bool ContainsStr(MethodBase methodBase, string match)
         {
             try
             {
@@ -52,7 +54,7 @@ namespace Client.Functions.Utils
             return false;
         }
 
-        public static bool WasUsedBy(MethodBase methodBase, string methodName)
+        internal static bool WasUsedBy(MethodBase methodBase, string methodName)
         {
             try
             {
@@ -64,7 +66,7 @@ namespace Client.Functions.Utils
             return false;
         }
 
-        public static Transform GetBoneTransform(Player player, HumanBodyBones bone)
+        internal static Transform GetBoneTransform(Player player, HumanBodyBones bone)
         {
             Transform playerPosition = player.transform;
             VRCAvatarManager avatarManager = player.prop_VRCPlayer_0.prop_VRCAvatarManager_0;
@@ -79,14 +81,14 @@ namespace Client.Functions.Utils
 
     internal static class NativePatchUtils
     {
-        public static unsafe TDelegate Patch<TDelegate>(MethodInfo originalMethod, IntPtr patchDetour) where TDelegate : Delegate
+        internal static unsafe TDelegate Patch<TDelegate>(MethodInfo originalMethod, IntPtr patchDetour) where TDelegate : Delegate
         {
             IntPtr original = *(IntPtr*)(IntPtr)UnhollowerUtils.GetIl2CppMethodInfoPointerFieldForGeneratedMethod(originalMethod).GetValue(null);
             MelonUtils.NativeHookAttach((IntPtr)(&original), patchDetour);
             return Marshal.GetDelegateForFunctionPointer<TDelegate>(original);
         }
 
-        public static IntPtr GetDetour<TClass>(string patchName)
+        internal static IntPtr GetDetour<TClass>(string patchName)
             where TClass : class => typeof(TClass).GetMethod(patchName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)!
             .MethodHandle.GetFunctionPointer();
     }
@@ -94,16 +96,16 @@ namespace Client.Functions.Utils
     internal class Timer
     {
         private Stopwatch timer;
-        public GameObject text;
-        public bool IsFrozen;
+        internal GameObject text;
+        internal bool IsFrozen;
 
-        public Timer()
+        internal Timer()
         {
             IsFrozen = true;
             RestartTimer();
         }
 
-        public void RestartTimer()
+        internal void RestartTimer()
         {
             timer = Stopwatch.StartNew();
             if (IsFrozen) MelonCoroutines.Start(Checker());
@@ -112,13 +114,13 @@ namespace Client.Functions.Utils
         private IEnumerator Checker()
         {
             IsFrozen = false;
-            FrozenPlayersManager.NametagSet(this);
+            ModulesManager.frozenPlayersManager.NametagSet(this);
 
             while (timer.ElapsedMilliseconds <= 1000)
                 yield return null;
 
             IsFrozen = true;
-            FrozenPlayersManager.NametagSet(this);
+            ModulesManager.frozenPlayersManager.NametagSet(this);
             yield break;
         }
     }

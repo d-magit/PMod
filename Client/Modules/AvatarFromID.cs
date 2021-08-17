@@ -2,13 +2,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UIExpansionKit.API;
-using Client.Functions.Utils;
+using Client.Utils;
 
-namespace Client.Functions
+namespace Client.Modules
 {
-    internal static class AvatarFromID
+    internal class AvatarFromID : ModuleBase
     {
-        public static void OnUiManagerInit()
+        internal override void OnUiManagerInit()
         {
             ExpansionKitApi.GetExpandedMenu(ExpandedMenu.AvatarMenu).AddSimpleButton("Avatar from ID", () =>
             {

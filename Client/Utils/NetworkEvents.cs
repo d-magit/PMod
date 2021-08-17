@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using VRC;
 using VRC.Core;
 
-namespace Client.Functions.Utils
+namespace Client.Utils
 {
     internal static class NetworkEvents
     {
-        public static event Action<Player> OnJoin;
-        public static event Action<Player> OnLeave;
-        public static event Action<ApiWorld, ApiWorldInstance> OnInstanceChange;
-        public static event Action<Photon.Realtime.Player> OnMasterChanged;
+        internal static event Action<Player> OnPlayerJoined;
+        internal static event Action<Player> OnPlayerLeft;
+        internal static event Action<ApiWorld, ApiWorldInstance> OnInstanceChange;
+        internal static event Action<Photon.Realtime.Player> OnMasterChanged;
 
         private static bool SeenFire;
         private static bool AFiredFirst;
@@ -25,7 +24,7 @@ namespace Client.Functions.Utils
                 SeenFire = true;
             }
 
-            (AFiredFirst ? OnJoin : OnLeave)?.Invoke(player);
+            (AFiredFirst ? OnPlayerJoined : OnPlayerLeft)?.Invoke(player);
         }
 
         private static void EventHandlerB(Player player)
@@ -36,7 +35,7 @@ namespace Client.Functions.Utils
                 SeenFire = true;
             }
 
-            (AFiredFirst ? OnLeave : OnJoin)?.Invoke(player);
+            (AFiredFirst ? OnPlayerLeft : OnPlayerJoined)?.Invoke(player);
         }
 
         private static void OnInstanceChangeMethod(ApiWorld __0, ApiWorldInstance __1) => OnInstanceChange?.Invoke(__0, __1);
@@ -45,7 +44,7 @@ namespace Client.Functions.Utils
 
         private static void AddDelegate(VRCEventDelegate<Player> field, Action<Player> eventHandler) => field.field_Private_HashSet_1_UnityAction_1_T_0.Add(eventHandler);
 
-        public static void OnUiManagerInit()
+        internal static void OnUiManagerInit()
         {
             AddDelegate(NetworkManager.field_Internal_Static_NetworkManager_0.field_Internal_VRCEventDelegate_1_Player_0, EventHandlerA);
             AddDelegate(NetworkManager.field_Internal_Static_NetworkManager_0.field_Internal_VRCEventDelegate_1_Player_1, EventHandlerB);

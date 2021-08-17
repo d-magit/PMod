@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Client.Modules;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
@@ -11,11 +12,11 @@ using ExitGames.Client.Photon;
 using VRC;
 using VRC.SDKBase;
 
-namespace Client.Functions.Utils
+namespace Client.Utils
 {
     internal static class Methods
     {
-        public static void PopupV2(string title, string innertxt, string buttontxt, Il2CppSystem.Action buttonOk, Il2CppSystem.Action<VRCUiPopup> action = null) =>
+        internal static void PopupV2(string title, string innertxt, string buttontxt, Il2CppSystem.Action buttonOk, Il2CppSystem.Action<VRCUiPopup> action = null) =>
             GetPopupV2Delegate(title, innertxt, buttontxt, buttonOk, action);
         private delegate void PopupV2Delegate(string title, string innertxt, string buttontxt, Il2CppSystem.Action buttonOk, Il2CppSystem.Action<VRCUiPopup> action = null);
         private static PopupV2Delegate popupV2Delegate;
@@ -29,7 +30,7 @@ namespace Client.Functions.Utils
                         Utilities.WasUsedBy(methodBase, "OpenSaveSearchPopup")));
 
         private static MethodInfo playerFromID;
-        public static MethodInfo PlayerFromID =>
+        internal static MethodInfo PlayerFromID =>
                 playerFromID ??= typeof(PlayerManager).GetMethods()
                     .Where(methodBase => methodBase.Name.StartsWith("Method_Public_Static_Player_String_") && !methodBase.Name.Contains("PDM"))
                     .OrderBy(method => UnhollowerSupport.GetIl2CppMethodCallerCount(method)).Last();
@@ -44,7 +45,7 @@ namespace Client.Functions.Utils
         private static FreezeSetupDelegate freezeSetupDelegate;
         private static LocalToGlobalSetupDelegate localToGlobalSetupDelegate;
         private static readonly List<OnPlayerNetDecodeDelegate> dontGarbageCollectDelegates = new List<OnPlayerNetDecodeDelegate>();
-        public static void OnApplicationStart()
+        internal static void OnApplicationStart()
         {
             unsafe
             {
@@ -78,11 +79,11 @@ namespace Client.Functions.Utils
         private static Il2CppSystem.Object LastSent;
         private static IntPtr FreezeSetup(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
         {
-            if (EType == 7 && Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] == PhotonFreeze.PhotonID)
+            if (EType == 7 && Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] == ModulesManager.photonFreeze.PhotonID)
             {
                 try
                 {
-                    if (!PhotonFreeze.IsFreeze)
+                    if (!ModulesManager.photonFreeze.IsFreeze)
                         LastSent = new Il2CppSystem.Object(Obj);
                     else
                         return freezeSetupDelegate(EType, LastSent.Pointer, EOptions, SOptions, nativeMethodInfo);
@@ -96,12 +97,12 @@ namespace Client.Functions.Utils
             return freezeSetupDelegate(EType, Obj, EOptions, SOptions, nativeMethodInfo);
         }
 
-        public static bool triggerOnce = false;
+        internal static bool triggerOnce = false;
         private static void LocalToGlobalSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
         {
             try
             {
-                if ((Triggers.IsAlwaysForceGlobal || triggerOnce) && broadcast == VRC_EventHandler.VrcBroadcastType.Local)
+                if ((ModulesManager.triggers.IsAlwaysForceGlobal || triggerOnce) && broadcast == VRC_EventHandler.VrcBroadcastType.Local)
                 {
                     VRC_EventHandler.VrcEvent @event = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC_EventHandler.VrcEvent>(eventPtr);
                     broadcast = VRC_EventHandler.VrcBroadcastType.AlwaysUnbuffered;
@@ -127,7 +128,7 @@ namespace Client.Functions.Utils
                     if (playerNet != null)
                     {
                         Timer entry = null;
-                        try { entry = FrozenPlayersManager.EntryDict[playerNet.prop_Player_0.prop_APIUser_0.id]; } catch { };
+                        try { entry = ModulesManager.frozenPlayersManager.EntryDict[playerNet.prop_Player_0.prop_APIUser_0.id]; } catch { };
                         if (entry != null)
                             entry.RestartTimer();
                     }

@@ -1,4 +1,4 @@
-﻿using Client.Functions.Utils;
+﻿using Client.Utils;
 using UnityEngine;
 using MelonLoader;
 using Photon.Pun;
@@ -7,32 +7,31 @@ using UIExpansionKit.API;
 using Object = UnityEngine.Object;
 //using FlatNetworkBufferSerializer = MonoBehaviour2PrivateHa1ObVeObAcVeSeAc1Unique;
 
-namespace Client.Functions
+namespace Client.Modules
 {
-    internal static class PhotonFreeze
+    internal class PhotonFreeze : ModuleBase
     {
-        private static ICustomShowableLayoutedMenu FreezeMenu;
-        private static Transform CloneObj;
-        private static Vector3 OriginalPos;
-        private static Quaternion OriginalRot;
-        public static int PhotonID = 0;
-        public static bool IsFreeze = false;
-        public static MelonPreferences_Entry<bool> IsOn;
+        private ICustomShowableLayoutedMenu FreezeMenu;
+        private Transform CloneObj;
+        private Vector3 OriginalPos;
+        private Quaternion OriginalRot;
+        internal int PhotonID = 0;
+        internal bool IsFreeze = false;
+        internal MelonPreferences_Entry<bool> IsOn;
 
-        public static void OnApplicationStart()
+        internal PhotonFreeze()
         {
             MelonPreferences.CreateCategory("PhotonFreeze", "PM - Photon Freeze");
             IsOn = MelonPreferences.CreateEntry("PhotonFreeze", "IsOn", false, "Activate Mod? This is a risky function.");
-            NetworkEvents.OnJoin += OnJoin;
         }
 
-        private static void OnJoin(Player player) 
+        internal override void OnPlayerJoined(Player player) 
         { 
             if (player.prop_APIUser_0.id == Player.prop_Player_0.prop_APIUser_0.id) 
                 PhotonID = player.gameObject.GetComponent<PhotonView>().viewIdField;
         }
 
-        public static void ShowFreezeMenu()
+        internal void ShowFreezeMenu()
         {
             FreezeMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
             FreezeMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
@@ -41,13 +40,13 @@ namespace Client.Functions
             FreezeMenu.Show();
         }
 
-        private static void TPPlayerToPos(Vector3 OriginalPos, Quaternion OriginalRot)
+        private void TPPlayerToPos(Vector3 OriginalPos, Quaternion OriginalRot)
         {
             Utilities.GetLocalVRCPlayer().transform.position = OriginalPos;
             Utilities.GetLocalVRCPlayer().transform.rotation = OriginalRot;
         }
 
-        private static void ToggleFreeze()
+        private void ToggleFreeze()
         {
             IsFreeze = !IsFreeze;
             if (IsFreeze)
@@ -59,7 +58,7 @@ namespace Client.Functions
             ShowFreezeMenu();
         }
 
-        private static void Clone(bool Toggle)
+        private void Clone(bool Toggle)
         {
             if (Toggle)
             {
