@@ -21,7 +21,7 @@ namespace Client
     {
         public const string Name = "Personal Client";
         public const string Author = "Me";
-        public const string Version = "1.1.3";
+        public const string Version = "1.1.4";
     }
 
     public class Main : MelonMod
