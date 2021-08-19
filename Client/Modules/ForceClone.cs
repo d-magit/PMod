@@ -20,13 +20,22 @@ namespace Client.Modules
         private GameObject platformIconPC;
         private GameObject platformIconOculus;
         private Transform cloneButton;
-        private bool isFar = true;
+        private bool isFar = true, ranOnce;
         private Transform UserInteract() => GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").transform;
         private Vector3 GetOriginalPos() => UserInteract().Find("ShowAuthorButton").position + 
             UserInteract().Find("ViewAvatarThreeToggle/Button_UseSafetySettings").position - UserInteract().Find("MuteButton").position;
 
+        private MelonPreferences_Entry<bool> IsOn;
+
+        internal ForceClone() // This is for PM not conflicting with RubyClient or ReMod
+        {
+            MelonPreferences.CreateCategory("ForceClone", "PM - Force Clone");
+            IsOn = MelonPreferences.CreateEntry("ForceClone", "IsOn", true, "Activate Mod? (Disabling requires restart)");
+        }
+
         internal override void OnUiManagerInit()
         {
+            if (!IsOn.Value) return;
             CreateButtons();
             Main.listener.OnEnabled += delegate 
             {
@@ -57,10 +66,13 @@ namespace Client.Modules
                     isFar = false;
                 }
             };
+
+            ranOnce = true;
         }
 
         internal override void OnUpdate()
         {
+            if (!IsOn.Value) return;
             if (platformAny != null)
             {
                 if (platformAny.active != platformIconAny.active || platformPC.active != platformIconPC.active || platformOculus.active != platformIconOculus.active)
@@ -91,6 +103,11 @@ namespace Client.Modules
             platformIconPC = platformIcon.Find("PCIcon").gameObject;
             platformIconOculus = platformIcon.Find("QuestIcon").gameObject;
             platform.position = cloneButton.Find("PlatformIcon").position;
+        }
+
+        internal override void OnPreferencesSaved()
+        {
+            if (IsOn.Value && !ranOnce) OnUiManagerInit();
         }
     }
 }
