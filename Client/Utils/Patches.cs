@@ -1,5 +1,4 @@
-﻿using Client.Modules;
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
@@ -44,7 +43,7 @@ namespace Client.Utils
         private delegate IntPtr OnPlayerNetDecodeDelegate(IntPtr instancePointer, IntPtr objectsPointer, int objectIndex, float sendTime, IntPtr nativeMethodPointer);
         private static FreezeSetupDelegate freezeSetupDelegate;
         private static LocalToGlobalSetupDelegate localToGlobalSetupDelegate;
-        private static readonly List<OnPlayerNetDecodeDelegate> dontGarbageCollectDelegates = new List<OnPlayerNetDecodeDelegate>();
+        private static readonly List<OnPlayerNetDecodeDelegate> dontGarbageCollectDelegates = new();
         internal static void OnApplicationStart()
         {
             unsafe

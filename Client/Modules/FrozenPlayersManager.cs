@@ -22,7 +22,7 @@ namespace Client.Modules
                 timer.text = Object.Instantiate(text, text.transform.parent);
                 Object.DestroyImmediate(timer.text.transform.Find("Icon").gameObject);
                 var TM = timer.text.GetComponentInChildren<TextMeshProUGUI>();
-                TM.text = "Frozen ";
+                TM.text = "Frozen";
                 TM.color = Color.cyan;
                 timer.text.SetActive(false);
             }
