@@ -22,11 +22,10 @@ namespace PMod.Modules
         private GameObject platformIconOculus;
         private Transform cloneButton;
         private bool isFar = true, ranOnce;
+        private MelonPreferences_Entry<bool> IsOn;
         private Transform UserInteract() => GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").transform;
         private Vector3 GetOriginalPos() => UserInteract().Find("ShowAuthorButton").position + 
             UserInteract().Find("ViewAvatarThreeToggle/Button_UseSafetySettings").position - UserInteract().Find("MuteButton").position;
-
-        private MelonPreferences_Entry<bool> IsOn;
 
         internal ForceClone() // This is for PM not conflicting with RubyClient or ReMod
         {
@@ -76,13 +75,15 @@ namespace PMod.Modules
             if (!IsOn.Value) return;
             if (platformAny != null)
             {
-                if (platformAny.active != platformIconAny.active || platformPC.active != platformIconPC.active || platformOculus.active != platformIconOculus.active)
-                {
-                    platformAny.SetActive(platformIconAny.active);
-                    platformPC.SetActive(platformIconPC.active);
-                    platformOculus.SetActive(platformIconOculus.active);
-                }
+                if (platformAny.active != platformIconAny.active) platformAny.SetActive(platformIconAny.active);
+                if (platformPC.active != platformIconPC.active) platformPC.SetActive(platformIconPC.active);
+                if (platformOculus.active != platformIconOculus.active) platformOculus.SetActive(platformIconOculus.active);
             }
+        }
+
+        internal override void OnPreferencesSaved()
+        {
+            if (IsOn.Value && !ranOnce) OnUiManagerInit();
         }
 
         private void CreateButtons()
@@ -104,11 +105,6 @@ namespace PMod.Modules
             platformIconPC = platformIcon.Find("PCIcon").gameObject;
             platformIconOculus = platformIcon.Find("QuestIcon").gameObject;
             platform.position = cloneButton.Find("PlatformIcon").position;
-        }
-
-        internal override void OnPreferencesSaved()
-        {
-            if (IsOn.Value && !ranOnce) OnUiManagerInit();
         }
     }
 }

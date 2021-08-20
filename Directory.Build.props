@@ -9,9 +9,6 @@
 			<OutputPath>$(MsBuildThisFileDirectory)\Output</OutputPath>
 			<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
 		</PropertyGroup>
-		<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)' == 'true'">
-			<Exec Command="xcopy /c /f /y $(OutputPath)\$(AssemblyName).dll $(MelonManaged)\..\..\Mods" />
-		</Target>
 		<ItemGroup Condition="'$(VrcReferences)' == 'true'">
 			<Reference Include="System" />
 			<Reference Include="Microsoft.CSharp" />

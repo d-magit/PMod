@@ -49,8 +49,8 @@ namespace PMod.Utils
             try
             {
                 return XrefScanner.XrefScan(methodBase)
-                    .Any(instance => instance.Type == XrefType.Global && instance.ReadAsObject() != null &&
-                         instance.ReadAsObject().ToString().Equals(match, StringComparison.OrdinalIgnoreCase));
+                    .Any(instance => instance.Type == XrefType.Global &&
+                         instance.ReadAsObject()?.ToString().IndexOf(match, StringComparison.OrdinalIgnoreCase) >= 0);
             }
             catch { }
             return false;
