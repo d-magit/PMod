@@ -70,6 +70,12 @@ namespace PMod
 
         internal static void OnPlayerLeft(Player player) => ModulesManager.OnPlayerLeft(player);
 
+        internal static void RiskyFuncAlert(string FuncName) => Methods.PopupV2(
+            FuncName,
+            "You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
+            "Close",
+            new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
+
         private static void ShowClientMenu()
         {
             ClientMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
@@ -92,11 +98,5 @@ namespace PMod
             ClientMenu.AddSimpleButton("Triggers", () => ModulesManager.triggers.ShowTriggersMenu());
             ClientMenu.Show();
         }
-
-        internal static void RiskyFuncAlert(string FuncName) => Methods.PopupV2(
-            FuncName,
-            "You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
-            "Close",
-            new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
     }
 }
