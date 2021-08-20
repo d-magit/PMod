@@ -1,29 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{235E62ED-E445-421B-8045-F89F7D8CABAC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Client</RootNamespace>
-    <AssemblyName>Client</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <LangVersion>9</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AppendRuntimeIdentifierToOutputPath>False</AppendRuntimeIdentifierToOutputPath>
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <ClearOutputDirectory>False</ClearOutputDirectory>
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>False</DebugSymbols>
+    <OutputPath>$(MsBuildThisFileDirectory)\..</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<MelonManaged><!-- Insert MelonLoader\Managed\ path here --></MelonManaged>
+    <CopyToMods>true</CopyToMods>
+    <MelonManaged>D:\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed</MelonManaged>
   </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)' == 'true'">
+    <Exec Command="xcopy /c /f /y $(OutputPath)\$(AssemblyName).dll $(MelonManaged)\..\..\Mods" />
+  </Target>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(MelonManaged)\Assembly-CSharp.dll</HintPath>
@@ -100,28 +92,4 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Modules\AvatarFromID.cs" />
-    <Compile Include="ModuleBase.cs" />
-    <Compile Include="ModulesManager.cs" />
-    <Compile Include="Modules\FrozenPlayersManager.cs" />
-    <Compile Include="Modules\PhotonFreeze.cs" />
-    <Compile Include="Modules\Triggers.cs" />
-    <Compile Include="Utils\Patches.cs" />
-    <Compile Include="Utils\RubyButtonAPI.cs" />
-    <Compile Include="Utils\Utilities.cs" />
-    <Compile Include="Main.cs" />
-    <Compile Include="Modules\UserInteractUtils.cs" />
-    <Compile Include="Modules\EmmAllower.cs" />
-    <Compile Include="Modules\ItemGrabber.cs" />
-    <Compile Include="Modules\ForceClone.cs" />
-    <Compile Include="Modules\Orbit.cs" />
-    <Compile Include="Utils\NetworkEvents.cs" />
-    <Compile Include="Utils\EnableDisableListener.cs" />
-    <Compile Include="Utils\OrbitItem.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /f /y "$(TargetPath)" "$(MelonManaged)\..\..\Mods\$(TargetFileName)*"</PostBuildEvent>
-  </PropertyGroup>
 </Project>
