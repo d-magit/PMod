@@ -1,11 +1,11 @@
-﻿using Client.Utils;
+﻿using PMod.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using VRC;
 using Object = UnityEngine.Object;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class FrozenPlayersManager : ModuleBase
     {

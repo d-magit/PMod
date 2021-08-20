@@ -7,9 +7,9 @@ using VRC;
 using VRC.SDKBase;
 using UIExpansionKit.API;
 using Object = UnityEngine.Object;
-using Utilities = Client.Utils.Utilities;
+using Utilities = PMod.Utils.Utilities;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class ItemGrabber : ModuleBase
     {

@@ -1,4 +1,5 @@
-﻿using Client.Utils;
+﻿using PMod.Utils;
+using System.Linq;
 using System.Collections.Generic;
 using MelonLoader;
 using UnityEngine;
@@ -7,9 +8,9 @@ using VRC.Core;
 using VRC.SDKBase;
 using UIExpansionKit.API;
 using Object = UnityEngine.Object;
-using Utilities = Client.Utils.Utilities;
+using Utilities = PMod.Utils.Utilities;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class Orbit : ModuleBase
     {
@@ -19,7 +20,7 @@ namespace Client.Modules
         private MelonPreferences_Entry<bool> patch;
 
         internal ICustomShowableLayoutedMenu OrbitMenu;
-        internal Il2CppSystem.Collections.Generic.List<VRC_Pickup> Pickups;
+        internal List<VRC_Pickup> Pickups;
         internal Quaternion rotation;
         internal Quaternion rotationy;
         internal Vector3 OrbitCenter;
@@ -110,13 +111,11 @@ namespace Client.Modules
             if (CurrentPlayer != null) StopOrbit();
             CurrentPlayer = Player;
             Timer = 0f;
-            Pickups = Object.FindObjectsOfType<VRC_Pickup>().Cast<Il2CppSystem.Collections.Generic.List<VRC_Pickup>>();
+            Pickups = Object.FindObjectsOfType<VRC_Pickup>().ToList();
             OrbitCenter = GetCenter();
             Orbits = new List<OrbitItem>();
             for (int i = 0; i < Pickups.Count; i++)
-            {
                 Orbits.Add(new OrbitItem(Pickups[i], i));
-            }
         }
 
         private void StopOrbit()

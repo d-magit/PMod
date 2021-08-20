@@ -1,10 +1,10 @@
-﻿using Client.Modules;
+﻿using PMod.Modules;
 using System.Collections.Generic;
 using UnityEngine;
 using VRC;
 using VRC.Core;
 
-namespace Client
+namespace PMod
 {
 	internal abstract class ModuleBase
 	{

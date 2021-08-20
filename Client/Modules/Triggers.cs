@@ -1,11 +1,11 @@
-﻿using Client.Utils;
+﻿using PMod.Utils;
 using System;
 using MelonLoader;
 using UIExpansionKit.API;
 using VRC.SDKBase;
 using UnityEngine;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class Triggers : ModuleBase
     {

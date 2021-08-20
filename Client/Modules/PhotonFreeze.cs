@@ -1,4 +1,4 @@
-﻿using Client.Utils;
+﻿using PMod.Utils;
 using UnityEngine;
 using MelonLoader;
 using Photon.Pun;
@@ -7,7 +7,7 @@ using UIExpansionKit.API;
 using Object = UnityEngine.Object;
 //using FlatNetworkBufferSerializer = MonoBehaviour2PrivateHa1ObVeObAcVeSeAc1Unique;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class PhotonFreeze : ModuleBase
     {

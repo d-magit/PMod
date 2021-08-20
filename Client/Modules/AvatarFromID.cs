@@ -2,9 +2,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UIExpansionKit.API;
-using Client.Utils;
+using PMod.Utils;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class AvatarFromID : ModuleBase
     {
