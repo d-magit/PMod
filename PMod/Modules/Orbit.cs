@@ -51,7 +51,7 @@ namespace PMod.Modules
             roty = MelonPreferences.CreateEntry("Orbit", "RotationY", 0.0f, "Y Rotation");
             rotz = MelonPreferences.CreateEntry("Orbit", "RotationZ", 0.0f, "Z Rotation");
             OrbitMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu4Columns);
-            OrbitMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
+            OrbitMenu.AddSimpleButton("Go back", () => PMod.ClientMenu.Show());
             OrbitMenu.AddSimpleButton("Stop Orbit", () => StopOrbit());
             OrbitMenu.AddSimpleButton("Circular Orbit", () => SelectOrbit("Circular"));
             OrbitMenu.AddSimpleButton("Spherical Orbit", () => SelectOrbit("Spherical"));

@@ -22,7 +22,7 @@ namespace PMod.Modules
         internal void ShowTriggersMenu()
         {
             ICustomShowableLayoutedMenu TriggersMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
-            TriggersMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
+            TriggersMenu.AddSimpleButton("Go back", () => PMod.ClientMenu.Show());
             string btnName = "LocalToGlobal - ";
             Action action = null;
             if (IsOn.Value && Utils.Utilities.GetWorldSDKVersion() == Utils.Utilities.WorldSDKVersion.SDK2)
@@ -33,7 +33,7 @@ namespace PMod.Modules
             else if (!IsOn.Value)
             {
                 btnName += "Off";
-                action = () => Main.RiskyFuncAlert("LocalToGlobal");
+                action = () => PMod.RiskyFuncAlert("LocalToGlobal");
             }
             else
             {

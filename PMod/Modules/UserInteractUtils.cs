@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using MelonLoader;
 using VRC.Core;
+using PMod.Loader;
 
 namespace PMod.Modules
 {
@@ -65,7 +66,7 @@ namespace PMod.Modules
                     $"Failed to copy avatar \"{avatar.name}\" :(\nIf you see this message, please send the devs your last Melon log.",
                     "Close",
                     new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
-                MelonLogger.Error(e);
+                PLogger.Error(e);
             }
         }
 
