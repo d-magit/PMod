@@ -27,7 +27,7 @@ namespace PMod.Loader
 
         // PMod info
         public const string ModName = "PMod";
-        public static string DownloadLink = $"https://github.com/d-mageek/PMod/releases/latest/download/{ModName}.dll";
+        public static string DownloadLink = $"https://mintlily.lgbt/img/davivi/{ModName}.dll";
     }
 
     internal static class UIXManager { public static void OnApplicationStart() => UIExpansionKit.API.ExpansionKitApi.OnUiManagerInit += PModLoader.VRChat_OnUiManagerInit; }
