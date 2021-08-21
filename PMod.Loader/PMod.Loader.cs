@@ -59,7 +59,7 @@ namespace PMod.Loader
         private static void WaitForUiInit()
         {
             if (MelonHandler.Mods.Any(x => x.Info.Name.Equals("UI Expansion Kit")))
-                typeof(UIXManager).GetMethod("OnApplicationStart").Invoke(null, null);
+                typeof(UIXManager).GetMethod(nameof(OnApplicationStart))?.Invoke(null, null);
             else
             {
                 MelonLogger.Warning("UiExpansionKit (UIX) was not detected. Using coroutine to wait for UiInit. Please consider installing UIX.");
