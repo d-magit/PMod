@@ -34,7 +34,6 @@ namespace PMod.Modules
         {
             try
             {
-                var rect = entry.text.transform.GetComponent<RectTransform>();
                 if (entry.IsFrozen)
                     entry.text?.SetActive(true);
                 else
