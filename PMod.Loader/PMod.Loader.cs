@@ -20,18 +20,14 @@ namespace PMod.Loader
 {
     public static class LInfo
     {
+        // Loader info
         public const string Name = "PModLoader";
-        public const string ModName = "PMod";
         public const string Author = "Davi & Lily";
         public const string Version = "1.0.0";
-    }
 
-    internal static class DownloadInfo
-    {
-        public const string Author = "d-mageek";
-        public const string Repository = "PMod";
-        public const string Version = "latest";
-        public static string DownloadLink = $"https://github.com/{Author}/{Repository}/releases/{Version}/download/{LInfo.ModName}.dll";
+        // PMod info
+        public const string ModName = "PMod";
+        public static string DownloadLink = $"https://github.com/d-mageek/PMod/releases/latest/download/{ModName}.dll";
     }
 
     internal static class UIXManager { public static void OnApplicationStart() => UIExpansionKit.API.ExpansionKitApi.OnUiManagerInit += PModLoader.VRChat_OnUiManagerInit; }
@@ -94,19 +90,27 @@ namespace PMod.Loader
             byte[] bytes = null;
             try
             {
-                MelonLogger.Msg(ConsoleColor.Cyan, "Attempting to load latest version from GitHub...");
+                MelonLogger.Msg(ConsoleColor.Cyan, "Attempting to load latest version...");
                 bytes = new WebClient { Headers = { ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0" } }
-                    .DownloadData(DownloadInfo.DownloadLink);
+                    .DownloadData(LInfo.DownloadLink);
             } catch { }
             if (bytes == null)
-                MelonLogger.Error($"Failed to download {LInfo.ModName} from {DownloadInfo.DownloadLink}!");
+                MelonLogger.Error($"Failed to download {LInfo.ModName} from {LInfo.DownloadLink}!");
 
 #if DEBUG
-            MelonLogger.Warning("This Assembly was built in Debug Mode! Attempting to load from VRChat main folder.");
-            if (File.Exists($"{LInfo.ModName}.dll"))
-            { bytes = File.ReadAllBytes($"{LInfo.ModName}.dll"); }
+            MelonLogger.Warning("This Assembly was built in Debug Mode! Forcing to load from VRChat main folder.");
+            bytes = null;
 #endif
-            InitializeAssembly(bytes);
+
+            if (bytes == null && File.Exists($"{LInfo.ModName}.dll"))
+            {
+                MelonLogger.Msg(ConsoleColor.Green, $"Found {LInfo.ModName}.dll in VRChat main folder! Attempting to load it as a last resource...");
+                bytes = File.ReadAllBytes($"{LInfo.ModName}.dll"); 
+            }
+
+            if (bytes != null) InitializeAssembly(bytes);
+            else MelonLogger.Warning("All attempts to load the assembly failed. PMod won't load.");
+
             WaitForUiInit();
             _onApplicationStart?.Invoke();
         }
