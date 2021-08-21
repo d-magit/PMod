@@ -37,7 +37,7 @@ namespace PMod.Modules
         {
             if (!IsOn.Value) return;
             CreateButtons();
-            PMod.listener.OnEnabled += delegate 
+            Main.listener.OnEnabled += delegate 
             {
                 APIUser QMUser = QM.field_Private_APIUser_0;
                 toClone = Utilities.GetPlayerFromID(QMUser.id).prop_ApiAvatar_0;
@@ -57,7 +57,7 @@ namespace PMod.Modules
                     isFar = false;
                 }
             };
-            PMod.listener.OnDisabled += delegate 
+            Main.listener.OnDisabled += delegate 
             {
                 if (isFar)
                 {
