@@ -189,7 +189,6 @@ namespace PMod.Utils
 
             IsFrozen = true;
             ModulesManager.frozenPlayersManager.NametagSet(this);
-            yield break;
         }
     }
 
