@@ -40,9 +40,11 @@ namespace PMod.Utils
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr FreezeSetupDelegate(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
+        //private delegate IntPtr InvisibleJoinDelegate(IntPtr instancePointer, byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
         private delegate void LocalToGlobalSetupDelegate(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
         private delegate IntPtr OnPlayerNetDecodeDelegate(IntPtr instancePointer, IntPtr objectsPointer, int objectIndex, float sendTime, IntPtr nativeMethodPointer);
         private static FreezeSetupDelegate freezeSetupDelegate;
+        //private static InvisibleJoinDelegate invisibleJoinDelegate;
         private static LocalToGlobalSetupDelegate localToGlobalSetupDelegate;
         private static readonly List<OnPlayerNetDecodeDelegate> dontGarbageCollectDelegates = new();
         internal static void OnApplicationStart()
@@ -54,6 +56,14 @@ namespace PMod.Utils
                            BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
                            null, new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }, null),
                     NativePatchUtils.GetDetour<NativePatches>(nameof(FreezeSetup)));
+
+                // Please don't use this it's dangerous af lol u r gonna get banned XD
+
+                //invisibleJoinDelegate = NativePatchUtils.Patch<InvisibleJoinDelegate>(typeof(LoadBalancingClient)
+                //    .GetMethod(nameof(LoadBalancingClient.Method_Public_Virtual_New_Boolean_Byte_Object_RaiseEventOptions_SendOptions_0),
+                //           BindingFlags.Public | BindingFlags.Instance,
+                //           null, new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }, null),
+                //    NativePatchUtils.GetDetour<NativePatches>(nameof(InvisibleSetup)));
 
                 localToGlobalSetupDelegate = NativePatchUtils.Patch<LocalToGlobalSetupDelegate>(typeof(VRC_EventHandler)
                     .GetMethod(nameof(VRC_EventHandler.InternalTriggerEvent)),
@@ -79,23 +89,55 @@ namespace PMod.Utils
         private static Il2CppSystem.Object LastSent;
         private static IntPtr FreezeSetup(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
         {
-            if (EType == 7 && Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] == ModulesManager.photonFreeze.PhotonID)
+            switch (EType)
             {
-                try
-                {
-                    if (!ModulesManager.photonFreeze.IsFreeze)
-                        LastSent = new Il2CppSystem.Object(Obj);
-                    else
-                        return freezeSetupDelegate(EType, LastSent.Pointer, EOptions, SOptions, nativeMethodInfo);
-                }
-                catch (Exception e)
-                {
-                    PLogger.Warning("Something went wrong in Freeze Patch");
-                    PLogger.Error($"{e}");
-                }
+                case 7:
+                    if (Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] != ModulesManager.photonFreeze.PhotonID) break;
+                    try
+                    {
+                        if (!ModulesManager.photonFreeze.IsFreeze)
+                            LastSent = new Il2CppSystem.Object(Obj);
+                        else
+                            return freezeSetupDelegate(EType, LastSent.Pointer, EOptions, SOptions, nativeMethodInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        PLogger.Warning("Something went wrong in Freeze Patch");
+                        PLogger.Error($"{e}");
+                    }
+                    break;
             }
             return freezeSetupDelegate(EType, Obj, EOptions, SOptions, nativeMethodInfo);
         }
+
+        // Please don't use this it's dangerous af lol u r gonna get banned XD
+
+        //private static IntPtr InvisibleSetup(IntPtr instancePointer, byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
+        //{
+        //    RaiseEventOptions REOptions = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<RaiseEventOptions>(EOptions);
+        //    IntPtr _return = IntPtr.Zero;
+        //    bool ran = false;
+        //    switch (EType)
+        //    {
+        //        case 202:
+        //            try
+        //            {
+        //                if (!ModulesManager.invisibleJoin.IsInvisible) break;
+        //                REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.MasterClient;
+        //                _return = invisibleJoinDelegate(instancePointer, EType, Obj, EOptions, SOptions, nativeMethodInfo);
+        //                REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.Others;
+        //                ModulesManager.invisibleJoin.IsInvisible = false;
+        //                ran = true;
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                PLogger.Warning("Something went wrong in InvisibleJoin Patch");
+        //                PLogger.Error($"{e}");
+        //            }
+        //            break;
+        //    }
+        //    return ran ? _return : invisibleJoinDelegate(instancePointer, EType, Obj, EOptions, SOptions, nativeMethodInfo);
+        //}
 
         internal static bool triggerOnce = false;
         private static void LocalToGlobalSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
@@ -122,17 +164,14 @@ namespace PMod.Utils
             IntPtr result = originalDecodeDelegate(instancePointer, objectsPointer, objectIndex, sendTime, nativeMethodPointer);
             try
             {
-                if (result != IntPtr.Zero)
-                {
-                    PlayerNet playerNet = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<PlayerNet>(instancePointer);
-                    if (playerNet != null)
-                    {
-                        Timer entry = null;
-                        try { entry = ModulesManager.frozenPlayersManager.EntryDict[playerNet.prop_Player_0.prop_APIUser_0.id]; } catch { };
-                        if (entry != null)
-                            entry.RestartTimer();
-                    }
-                }
+                if (result == IntPtr.Zero) return result;
+
+                PlayerNet playerNet = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<PlayerNet>(instancePointer);
+                if (playerNet == null) return result;
+
+                Timer entry = null;
+                try { entry = ModulesManager.frozenPlayersManager.EntryDict[playerNet.prop_Player_0.prop_APIUser_0.id]; } catch { };
+                if (entry != null) entry.RestartTimer();
             }
             catch (Exception e)
             {
