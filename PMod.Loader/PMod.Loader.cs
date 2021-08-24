@@ -1,11 +1,13 @@
-﻿using MelonLoader;
-using System;
+﻿using System;
+using System.IO;
+using System.Net;
+using System.Linq;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Reflection;
+using Newtonsoft.Json;
+using MelonLoader;
+using System.Threading.Tasks;
 
 [assembly: AssemblyTitle(PMod.Loader.LInfo.Name)]
 [assembly: AssemblyCopyright("Created by " + PMod.Loader.LInfo.Author)]
@@ -21,18 +23,23 @@ namespace PMod.Loader
     public static class LInfo
     {
         // Loader info
-        public const string Name = "PModLoader";
+        public const string Name = "PMod.Loader";
         public const string Author = "Davi";
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         // PMod info
-        public const string ModName = "PMod";
-        public static string DownloadLink = $"https://mintlily.lgbt/img/davivi/{ModName}.dll";
+        internal const string ModName = "PMod";
+        internal static string MainLink = "https://davi.codes/vrchat/";
+    }
+
+    public class VersionCheckResponse
+    {
+        public string Result { get; set; }
+        public string Latest { get; set; }
     }
 
     internal static class UIXManager { public static void OnApplicationStart() => UIExpansionKit.API.ExpansionKitApi.OnUiManagerInit += PModLoader.VRChat_OnUiManagerInit; }
 
-    // This loader is my own reworked version of ReModCE's! https://github.com/RequiDev/ReModCE/blob/master/ReModCE.Loader/ReMod.Loader.cs
     public class PModLoader : MelonMod
     {
         private static Action _onApplicationStart;
@@ -73,29 +80,46 @@ namespace PMod.Loader
             }
         }
 
-        // For future usage in case of version-checking
-        
-        //using System.Text;
-        //using System.Security.Cryptography;
-        //private static string ComputeHash(HashAlgorithm sha256, byte[] data)
-        //{
-        //    var bytes = sha256.ComputeHash(data);
-        //    StringBuilder hex = new(bytes.Length * 2);
-        //    foreach (byte b in bytes) hex.AppendFormat("{0:x2}", b);
-        //    return hex.ToString();
-        //}
-
         public override void OnApplicationStart()
         {
+            MelonLogger.Msg(ConsoleColor.Blue, $"Loader's current version: {LInfo.Version}. Checking for updates...");
+            
+            Task.Run(async () =>
+            {
+                try
+                {
+                    VersionCheckResponse response = 
+                        JsonConvert.DeserializeObject<VersionCheckResponse>(
+                            await new WebClient { Headers = { [HttpRequestHeader.ContentType] = "application/json" } }
+                                .UploadStringTaskAsync(new Uri(LInfo.MainLink + "api"), "{\"name\":\"" + LInfo.Name + "\",\"version\":\"" + LInfo.Version + "\"}"));
+
+                    switch (response.Result)
+                    {
+                        case "UPDATED":
+                            MelonLogger.Msg(ConsoleColor.Green, $"The Loader is up to date!");
+                            break;
+                        case "OUTDATED":
+                            MelonLogger.Msg(ConsoleColor.Yellow, $"The Loader is outdated! Latest version: {response.Latest}. Downloading...");
+                            File.WriteAllBytes(Path.Combine(Environment.CurrentDirectory, $"Mods/{LInfo.Name}.dll"), new WebClient().DownloadData(LInfo.MainLink + $"{LInfo.Name}.dll"));
+                            MelonLogger.Msg(ConsoleColor.Green, $"Successfully updated {LInfo.Name}!");
+                            break;
+                        default:
+                            MelonLogger.Msg(ConsoleColor.DarkRed, $"Welcome, Savitar. What would you want to do today?");
+                            break;
+                    }
+                } 
+                catch (Exception e) 
+                { MelonLogger.Warning("Failed to check and download latest version!\n" + e.ToString()); }
+            });
+
             byte[] bytes = null;
             try
             {
-                MelonLogger.Msg(ConsoleColor.Cyan, "Attempting to load latest version...");
-                bytes = new WebClient { Headers = { ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0" } }
-                    .DownloadData(LInfo.DownloadLink);
+                MelonLogger.Msg(ConsoleColor.Blue, "Attempting to load PMod latest version...");
+                bytes = new WebClient().DownloadData(LInfo.MainLink + $"{LInfo.ModName}.dll");
             } catch { }
             if (bytes == null)
-                MelonLogger.Error($"Failed to download {LInfo.ModName} from {LInfo.DownloadLink}!");
+                MelonLogger.Error($"Failed to download {LInfo.ModName} from {LInfo.MainLink + $"{LInfo.ModName}.dll"}!");
 
 #if DEBUG
             MelonLogger.Warning("This Assembly was built in Debug Mode! Forcing to load from VRChat main folder.");
@@ -105,7 +129,7 @@ namespace PMod.Loader
             if (bytes == null && File.Exists($"{LInfo.ModName}.dll"))
             {
                 MelonLogger.Msg(ConsoleColor.Green, $"Found {LInfo.ModName}.dll in VRChat main folder! Attempting to load it as a last resource...");
-                bytes = File.ReadAllBytes($"{LInfo.ModName}.dll"); 
+                bytes = File.ReadAllBytes($"{LInfo.ModName}.dll");
             }
 
             if (bytes != null) InitializeAssembly(bytes);
