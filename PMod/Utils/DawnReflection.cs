@@ -26,7 +26,7 @@
                 @class = @class.ToString() == "System.RuntimeType" ? (Type) instanceOrClass : @class; /// !!
                 
                 PropertyInstances.TryGetValue(@class, out var _value);
-                if (_value?[typeof(T)] != null) _value[typeof(T)].GetValue(instanceOrClass).TryCast<T>(); // If our cache system has the type on record.
+                if (_value?[typeof(T)] != null) return _value[typeof(T)].GetValue(instanceOrClass).TryCast<T>(); // If our cache system has the type on record.
                 
                 var firstPropertyFound = @class.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance) // GetProperties = 400ns / 600ns total of this method
                     .Where(m => m.PropertyType == typeof(T))
