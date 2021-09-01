@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using MelonLoader;
 using VRC.Core;
 using PMod.Loader;
+using System.Text.RegularExpressions;
 
 namespace PMod.Modules
 {
@@ -77,22 +78,22 @@ namespace PMod.Modules
             return hex.ToString();
         }
 
-        private string ComputeVersionString(int version)
+        private string ComputeVersionString(string assetUrl)
         {
             string result = "";
-            foreach (byte b in BitConverter.GetBytes(version)) result += b.ToString("X2");
+            foreach (byte b in BitConverter.GetBytes(int.Parse(new Regex("(?:\\/file_[0-9A-Za-z-]+\\/)([0-9]+)", RegexOptions.Compiled)?.Match(assetUrl)?.Groups[1]?.Value)))
+                result += b.ToString("X2");
             return string.Concat(Enumerable.Repeat("0", (32 - result.Length))) + result;
         }
 
         private void ToCopyAsset(ApiAvatar avatar) =>
-            File.Copy(
-                new DirectoryInfo(
+            File.Copy(new DirectoryInfo(
                     Path.Combine(
                         AssetBundleDownloadManager.prop_AssetBundleDownloadManager_0.field_Private_Cache_0.path,
                         ByteArrayToString(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(avatar.assetUrl.Substring(avatar.assetUrl.IndexOf("file_"), 41)))).ToUpper().Substring(0, 16),
-                        ComputeVersionString(avatar.version)))
-                .GetFiles("*.*", SearchOption.AllDirectories).First(file => file.Name.Contains("__data")).FullName,
-                Path.Combine(ToPath.Value, $"{avatar.id}.vrca"),
-                true);
+                        ComputeVersionString(avatar.assetUrl)))
+                    .GetFiles("*.*", SearchOption.AllDirectories).First(file => file.Name.Contains("__data")).FullName,
+                    Path.Combine(ToPath.Value, $"{avatar.id}.vrca"),
+                    true);
     }
 }
