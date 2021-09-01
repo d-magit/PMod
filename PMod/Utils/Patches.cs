@@ -112,7 +112,7 @@ namespace PMod.Utils
         // Please don't use this it's dangerous af lol u r gonna get banned XD
         private static IntPtr InvisibleSetup(IntPtr instancePointer, byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
         {
-            //RaiseEventOptions REOptions = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<RaiseEventOptions>(EOptions);
+            RaiseEventOptions REOptions = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<RaiseEventOptions>(EOptions);
             IntPtr _return = IntPtr.Zero;
             bool ran = false;
             switch (EType)
@@ -121,9 +121,9 @@ namespace PMod.Utils
                     try
                     {
                         if (!ModulesManager.invisibleJoin.IsInvisible) break;
-                        //REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.MasterClient;
-                        //_return = invisibleJoinDelegate(instancePointer, EType, Obj, EOptions, SOptions, nativeMethodInfo);
-                        //REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.Others;
+                        REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.MasterClient;
+                        _return = invisibleJoinDelegate(instancePointer, EType, Obj, EOptions, SOptions, nativeMethodInfo);
+                        REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.Others;
                         ModulesManager.invisibleJoin.IsInvisible = false;
                         ran = true;
                     }
