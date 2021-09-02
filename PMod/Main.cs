@@ -33,8 +33,8 @@ namespace PMod
         {
             ModulesManager.Initialize();
             NativePatches.OnApplicationStart();
-            NetworkEvents.OnPlayerLeft += OnPlayerLeft;
-            NetworkEvents.OnPlayerJoined += OnPlayerJoined;
+            NetworkEvents.OnPlayerLeftAction += OnPlayerLeft;
+            NetworkEvents.OnPlayerJoinedAction += OnPlayerJoined;
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
             PLogger.Msg(ConsoleColor.Green, $"{BuildInfo.Name} Loaded Successfully!");
         }
@@ -71,7 +71,7 @@ namespace PMod
 
         internal static void OnPlayerLeft(Player player) => ModulesManager.OnPlayerLeft(player);
 
-        internal static void RiskyFuncAlert(string FuncName) => Methods.PopupV2(
+        internal static void RiskyFuncAlert(string FuncName) => DelegateMethods.PopupV2(
             FuncName,
             "You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
             "Close",

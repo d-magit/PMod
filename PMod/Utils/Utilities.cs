@@ -21,7 +21,7 @@ namespace PMod.Utils
     {
         internal static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
         internal static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
-        internal static Player GetPlayerFromID(string id) => (Player)Methods.PlayerFromID.Invoke(null, new object[] { id });
+        internal static Player GetPlayerFromID(string id) => (Player)DelegateMethods.PlayerFromID.Invoke(null, new object[] { id });
         internal static void ChangeToAVByID(string id)
         {
             var AviMenu = GameObject.Find("UserInterface/MenuContent/Screens/Avatar").GetComponent<PageAvatar>();
@@ -192,7 +192,7 @@ namespace PMod.Utils
         }
     }
 
-    // The entire code from now on came from Knah (afaik)
+    // The entire code from now on came from Knah (afaik), besides the part I commented.
     public class EnableDisableListener : MonoBehaviour
     {
         public EnableDisableListener(IntPtr obj0) : base(obj0) { }
@@ -210,10 +210,46 @@ namespace PMod.Utils
 
     internal static class NetworkEvents
     {
-        internal static event Action<Player> OnPlayerJoined;
-        internal static event Action<Player> OnPlayerLeft;
-        internal static event Action<ApiWorld, ApiWorldInstance> OnInstanceChange;
-        internal static event Action<Photon.Realtime.Player> OnMasterChanged;
+        internal static event Action<Player> OnPlayerJoinedAction;
+        internal static event Action<Player> OnPlayerLeftAction;
+        internal static event Action<ApiWorld, ApiWorldInstance> OnInstanceChangedAction;
+
+        //// Needs change to which method it patches, because only works at first instance join for now.
+        //[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        //public delegate void PlayerActionDelegate(IntPtr thisPtr, IntPtr playerPtr, IntPtr nativeMInfo);
+        //private static readonly System.Collections.Generic.List<PlayerActionDelegate> dontGCDelegates = new();
+        //private unsafe static void PatchMethods()
+        //{
+        //    var mIEnum = typeof(NetworkManager).GetMethods(BindingFlags.Public | BindingFlags.Instance).Where(
+        //        m => m.IsPublic && m.ReturnType == typeof(void) &&
+        //        m.GetParameters().FirstOrDefault()?.ParameterType == typeof(Player));
+        //    foreach (var mInfo in mIEnum)
+        //    {
+        //        var stringList = XrefScanner.XrefScan(mInfo)
+        //            .Where(instance => instance.Type == XrefType.Global)
+        //            .Select(instance => instance.ReadAsObject()?.ToString());
+        //        if (stringList.Any(s => s == "OnPlayerJoined {0}"))
+        //        {
+        //            PlayerActionDelegate tempMethod, originalMethod = null;
+        //            dontGCDelegates.Add(tempMethod = (thisPtr, playerPtr, nativeMInfo) =>
+        //            {
+        //                OnPlayerJoinedAction?.Invoke(UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<Player>(playerPtr));
+        //                originalMethod.Invoke(thisPtr, playerPtr, nativeMInfo);
+        //            });
+        //            originalMethod = NativePatchUtils.Patch<PlayerActionDelegate>(mInfo, Marshal.GetFunctionPointerForDelegate(tempMethod));
+        //        }
+        //        else if (stringList.Any(s => s == "OnPlayerLeft {0}"))
+        //        {
+        //            PlayerActionDelegate tempMethod, originalMethod = null;
+        //            dontGCDelegates.Add(tempMethod = (thisPtr, playerPtr, nativeMInfo) =>
+        //            {
+        //                OnPlayerLeftAction?.Invoke(UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<Player>(playerPtr));
+        //                originalMethod.Invoke(thisPtr, playerPtr, nativeMInfo);
+        //            });
+        //            originalMethod = NativePatchUtils.Patch<PlayerActionDelegate>(mInfo, Marshal.GetFunctionPointerForDelegate(tempMethod));
+        //        }
+        //    }
+        //}
 
         private static bool SeenFire;
         private static bool AFiredFirst;
@@ -226,7 +262,7 @@ namespace PMod.Utils
                 SeenFire = true;
             }
 
-            (AFiredFirst ? OnPlayerJoined : OnPlayerLeft)?.Invoke(player);
+            (AFiredFirst ? OnPlayerJoinedAction : OnPlayerLeftAction)?.Invoke(player);
         }
 
         private static void EventHandlerB(Player player)
@@ -237,22 +273,17 @@ namespace PMod.Utils
                 SeenFire = true;
             }
 
-            (AFiredFirst ? OnPlayerLeft : OnPlayerJoined)?.Invoke(player);
+            (AFiredFirst ? OnPlayerLeftAction : OnPlayerJoinedAction)?.Invoke(player);
         }
 
-        private static void OnInstanceChangeMethod(ApiWorld __0, ApiWorldInstance __1) => OnInstanceChange?.Invoke(__0, __1);
-
-        private static void OnMasterChange(Photon.Realtime.Player __0) => OnMasterChanged?.Invoke(__0);
-
+        private static void OnInstanceChangeMethod(ApiWorld __0, ApiWorldInstance __1) => OnInstanceChangedAction?.Invoke(__0, __1);
         private static void AddDelegate(VRCEventDelegate<Player> field, Action<Player> eventHandler) => field.field_Private_HashSet_1_UnityAction_1_T_0.Add(eventHandler);
 
         internal static void OnUiManagerInit()
         {
+            //PatchMethods();
             AddDelegate(NetworkManager.field_Internal_Static_NetworkManager_0.field_Internal_VRCEventDelegate_1_Player_0, EventHandlerA);
             AddDelegate(NetworkManager.field_Internal_Static_NetworkManager_0.field_Internal_VRCEventDelegate_1_Player_1, EventHandlerB);
-
-            Main.HInstance.Patch(typeof(NetworkManager).GetMethod("OnMasterClientSwitched"),
-                new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnMasterChange), BindingFlags.NonPublic | BindingFlags.Static)));
             Main.HInstance.Patch(typeof(RoomManager).GetMethod("Method_Public_Static_Boolean_ApiWorld_ApiWorldInstance_String_Int32_0"), null,
                 new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnInstanceChangeMethod), BindingFlags.NonPublic | BindingFlags.Static)));
         }

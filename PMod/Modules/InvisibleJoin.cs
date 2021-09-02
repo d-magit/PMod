@@ -1,5 +1,6 @@
-﻿// Please don't use this it's dangerous af lol u r gonna get banned XD
+﻿// Please don't use this it's dangerous af lol u r gonna get banned XD // Also, why would u even use this? creep
 
+using PMod.Utils;
 using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +12,6 @@ namespace PMod.Modules
     internal class InvisibleJoin : ModuleBase
     {
         internal bool onceOnly = true;
-        internal bool IsInvisible = false;
         internal MelonPreferences_Entry<bool> IsOn;
         internal Transform JoinButton;
 
@@ -49,7 +49,7 @@ namespace PMod.Modules
             join.onClick = new Button.ButtonClickedEvent();
             join.GetComponent<Button>().onClick.AddListener((UnityAction)(() =>
             {
-                IsInvisible = true;
+                NativePatches.triggerOnceInvisible = true;
                 GoButton.GetComponent<Button>().onClick.Invoke();
             }));
             join.interactable = true;
@@ -58,7 +58,7 @@ namespace PMod.Modules
         internal void SetJoinMode(bool isOn)
         {
             onceOnly = !isOn;
-            IsInvisible = isOn;
+            NativePatches.triggerOnceInvisible = isOn;
             JoinButton.gameObject.SetActive(!isOn);
         }
     }

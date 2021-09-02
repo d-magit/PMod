@@ -38,7 +38,7 @@ namespace PMod.Modules
             else
             {
                 btnName += "Off";
-                action = () => Methods.PopupV2(
+                action = () => DelegateMethods.PopupV2(
                     "LocalToGlobal",
                     "Sorry, this world is an SDK3 Udon world.\nThis function won't work in here.",
                     "Close",
@@ -67,7 +67,7 @@ namespace PMod.Modules
                 try 
                 { 
                     if (IsForceGlobal)
-                        NativePatches.triggerOnce = true; 
+                        NativePatches.triggerOnceLTG = true; 
                     trigger.ExecuteTrigger.Invoke(@event); 
                 } catch { } 
             });
