@@ -124,7 +124,7 @@ namespace PMod.Utils
                         REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.MasterClient;
                         _return = invisibleJoinDelegate(instancePointer, EType, Obj, EOptions, SOptions, nativeMethodInfo);
                         REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.Others;
-                        ModulesManager.invisibleJoin.IsInvisible = false;
+                        if (ModulesManager.invisibleJoin.onceOnly) ModulesManager.invisibleJoin.IsInvisible = false;
                         ran = true;
                     }
                     catch (Exception e)
