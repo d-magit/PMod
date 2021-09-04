@@ -49,17 +49,17 @@ namespace PMod.Modules
             join.onClick = new Button.ButtonClickedEvent();
             join.GetComponent<Button>().onClick.AddListener((UnityAction)(() =>
             {
-                NativePatches.triggerOnceInvisible = true;
+                NativePatches.triggerInvisible = true;
                 GoButton.GetComponent<Button>().onClick.Invoke();
             }));
             join.interactable = true;
         }
 
-        internal void SetJoinMode(bool isOn)
+        internal void SetJoinMode(bool alwaysInvisible)
         {
-            onceOnly = !isOn;
-            NativePatches.triggerOnceInvisible = isOn;
-            JoinButton.gameObject.SetActive(!isOn);
+            onceOnly = !alwaysInvisible;
+            NativePatches.triggerInvisible = alwaysInvisible;
+            JoinButton.gameObject.SetActive(!alwaysInvisible);
         }
     }
 }

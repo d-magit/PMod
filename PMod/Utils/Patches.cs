@@ -39,37 +39,27 @@ namespace PMod.Utils
     internal class NativePatches
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate IntPtr FreezeSetupDelegate(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate IntPtr InvisibleJoinDelegate(IntPtr instancePointer, byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
+        private delegate IntPtr RaiseEventDelegate(IntPtr instancePointer, byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr OnPlayerNetDecodeDelegate(IntPtr instancePointer, IntPtr objectsPointer, int objectIndex, float sendTime, IntPtr nativeMethodPointer);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LocalToGlobalSetupDelegate(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
-        private static FreezeSetupDelegate freezeSetupDelegate;
-        private static InvisibleJoinDelegate invisibleJoinDelegate;
+        private static RaiseEventDelegate raiseEventDelegate;
         private static LocalToGlobalSetupDelegate localToGlobalSetupDelegate;
         private static readonly List<OnPlayerNetDecodeDelegate> dontGCDelegates = new();
         internal unsafe static void OnApplicationStart()
         {
-            freezeSetupDelegate = NativePatchUtils.Patch<FreezeSetupDelegate>(typeof(PhotonNetwork)
-                .GetMethod(nameof(PhotonNetwork.Method_Public_Static_Boolean_Byte_Object_RaiseEventOptions_SendOptions_0),
-                        BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
-                        null, new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }, null),
-                NativePatchUtils.GetDetour<NativePatches>(nameof(FreezeSetup)));
-
-            // Please don't use this it's dangerous af lol u r gonna get banned XD // Also, why would u even use this? creep
-            invisibleJoinDelegate = NativePatchUtils.Patch<InvisibleJoinDelegate>(typeof(LoadBalancingClient)
+            raiseEventDelegate = NativePatchUtils.Patch<RaiseEventDelegate>(typeof(LoadBalancingClient)
                 .GetMethod(nameof(LoadBalancingClient.Method_Public_Virtual_New_Boolean_Byte_Object_RaiseEventOptions_SendOptions_0),
                         BindingFlags.Public | BindingFlags.Instance,
                         null, new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }, null),
-                NativePatchUtils.GetDetour<NativePatches>(nameof(InvisibleJoinSetup)));
+                NativePatchUtils.GetDetour<NativePatches>(nameof(RaiseEventSetup)));
 
             localToGlobalSetupDelegate = NativePatchUtils.Patch<LocalToGlobalSetupDelegate>(typeof(VRC_EventHandler)
                 .GetMethod(nameof(VRC_EventHandler.InternalTriggerEvent)),
                 NativePatchUtils.GetDetour<NativePatches>(nameof(LocalToGlobalSetup)));
 
-            //(from p in m.GetParameters() select p.ParameterType).ToArray() == new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }
+            //(from p in m.GetParameters() select p.ParameterType).ToArray() == new[] { typeof(), typeof(), typeof() }
             var mIEnum = typeof(PlayerNet).GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(m => m.GetParameters().Length == 3 && m.Name.StartsWith("Method_Public_Virtual_Final_New_Void_ValueTypePublicSealed"));
             foreach (var mInfo in mIEnum)
@@ -81,19 +71,22 @@ namespace PMod.Utils
             }
         }
 
+        // Please don't use InvisibleJoin, it's dangerous af lol u r gonna get banned XD // Also, why would u even use this? creep
         private static Il2CppSystem.Object LastSent;
-        private static IntPtr FreezeSetup(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
+        internal static bool triggerInvisible = false;
+        private static IntPtr RaiseEventSetup(IntPtr instancePtr, byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfoPtr)
         {
+            IntPtr _return = IntPtr.Zero;
             switch (EType)
             {
-                case 7:
-                    if (Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] != ModulesManager.photonFreeze.PhotonID) break;
+                case 7: // PhotonFreeze
                     try
                     {
+                        if (Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] != ModulesManager.photonFreeze.PhotonID) break;
                         if (!ModulesManager.photonFreeze.IsFreeze)
                             LastSent = new Il2CppSystem.Object(Obj);
                         else
-                            return freezeSetupDelegate(EType, LastSent.Pointer, EOptions, SOptions, nativeMethodInfo);
+                            _return = raiseEventDelegate(instancePtr, EType, LastSent.Pointer, EOptions, SOptions, nativeMethodInfoPtr);
                     }
                     catch (Exception e)
                     {
@@ -101,28 +94,15 @@ namespace PMod.Utils
                         PLogger.Error($"{e}");
                     }
                     break;
-            }
-            return freezeSetupDelegate(EType, Obj, EOptions, SOptions, nativeMethodInfo);
-        }
-
-        // Please don't use this it's dangerous af lol u r gonna get banned XD // Also, why would u even use this? creep
-        internal static bool triggerOnceInvisible = false;
-        private static IntPtr InvisibleJoinSetup(IntPtr instancePointer, byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
-        {
-            RaiseEventOptions REOptions = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<RaiseEventOptions>(EOptions);
-            IntPtr _return = IntPtr.Zero;
-            bool ran = false;
-            switch (EType)
-            {
-                case 202:
+                case 202: // InvisibleJoin
                     try
                     {
-                        if (!triggerOnceInvisible) break;
+                        if (!triggerInvisible) break;
+                        RaiseEventOptions REOptions = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<RaiseEventOptions>(EOptions);
                         REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.MasterClient;
-                        _return = invisibleJoinDelegate(instancePointer, EType, Obj, EOptions, SOptions, nativeMethodInfo);
+                        _return = raiseEventDelegate(instancePtr, EType, Obj, EOptions, SOptions, nativeMethodInfoPtr);
                         REOptions.field_Public_ReceiverGroup_0 = ReceiverGroup.Others;
-                        if (ModulesManager.invisibleJoin.onceOnly) triggerOnceInvisible = false;
-                        ran = true;
+                        if (ModulesManager.invisibleJoin.onceOnly) triggerInvisible = false;
                     }
                     catch (Exception e)
                     {
@@ -131,11 +111,11 @@ namespace PMod.Utils
                     }
                     break;
             }
-            return ran ? _return : invisibleJoinDelegate(instancePointer, EType, Obj, EOptions, SOptions, nativeMethodInfo);
+            return _return != IntPtr.Zero ? _return : raiseEventDelegate(instancePtr, EType, Obj, EOptions, SOptions, nativeMethodInfoPtr);
         }
 
         internal static bool triggerOnceLTG = false;
-        private static void LocalToGlobalSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
+        private static void LocalToGlobalSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfoPtr)
         {
             try
             {
@@ -151,7 +131,7 @@ namespace PMod.Utils
                 PLogger.Warning("Something went wrong in LocalToGlobalSetup Patch");
                 PLogger.Error($"{e}");
             }
-            localToGlobalSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
+            localToGlobalSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfoPtr);
         }
 
         private static IntPtr PlayerNetPatch(IntPtr instancePointer, IntPtr objectsPointer, int objectIndex, float sendTime, IntPtr nativeMethodPointer, OnPlayerNetDecodeDelegate originalDecodeDelegate)
