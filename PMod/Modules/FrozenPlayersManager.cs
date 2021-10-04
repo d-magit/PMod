@@ -24,6 +24,7 @@ namespace PMod.Modules
                 var TM = timer.text.GetComponentInChildren<TextMeshProUGUI>();
                 TM.text = "Frozen";
                 TM.color = Color.cyan;
+                try { timer.text.transform.gameObject.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, 30); } catch { }
                 timer.text.SetActive(false);
             }
         }

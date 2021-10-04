@@ -23,7 +23,7 @@ namespace PMod.Utils
     public static class QMButtonAPI
     {
         //REPLACE THIS STRING SO YOUR MENU DOESNT COLLIDE WITH OTHER MENUS
-        public static string identifier = "REPLACEME";
+        public static string identifier = PMod.BuildInfo.Name;
         public static Color mBackground = Color.red;
         public static Color mForeground = Color.white;
         public static Color bBackground = Color.red;
@@ -162,7 +162,7 @@ namespace PMod.Utils
                 disabledColor = Color.grey,
                 highlightedColor = buttonBackgroundColor * 1.5f,
                 normalColor = buttonBackgroundColor / 1.5f,
-                pressedColor = Color.grey * 1.5f
+                pressedColor = buttonBackgroundColor * 1.5f
             };
         }
 
@@ -508,19 +508,29 @@ namespace PMod.Utils
                 FieldInfo[] fis = Il2CppType.Of<QuickMenu>().GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where((fi) => fi.FieldType == Il2CppType.Of<GameObject>()).ToArray();
                 //MelonLoader.MelonModLogger.Log("[QMStuff] GameObject Fields in QuickMenu:");
                 int count = 0;
-                foreach (FieldInfo fi in fis)
-                {
+                bool continueThru = true;
+                foreach (FieldInfo fi in fis) {
                     GameObject value = fi.GetValue(quickmenu)?.TryCast<GameObject>();
-                    if (value == shortcutMenu && ++count == 2)
-                    {
-                        //MelonLoader.MelonModLogger.Log("[QMStuff] currentPage field: " + fi.Name);
-                        currentPageGetter = fi;
-                        break;
-                    }
+
+                    if (continueThru)
+                        switch (QuickMenu.prop_QuickMenu_0.field_Private_EnumNPublicSealedvaUnShEmUsEmNoCaMo_nUnique_0) {
+                            case QuickMenu.EnumNPublicSealedvaUnShEmUsEmNoCaMo_nUnique.UserInteractMenu:
+                                if (value == userInteractMenu && ++count == 2) {
+                                    currentPageGetter = fi;
+                                    continueThru = false;
+                                }
+                                break;
+                            default:
+                                if (value == shortcutMenu && ++count == 3) {
+                                    currentPageGetter = fi;
+                                    continueThru = false;
+                                }
+                                break;
+                        }
                 }
                 if (currentPageGetter == null)
                 {
-                    Console.WriteLine("[QMStuff] Unable to find field currentPage in QuickMenu");
+                    MelonLoader.MelonLogger.Error("[QMStuff] Unable to find field currentPage in QuickMenu");
                     return;
                 }
             }
@@ -534,8 +544,6 @@ namespace PMod.Utils
             quickmenuContextualDisplay.Method_Public_Void_EnumNPublicSealedvaUnNoToUs7vUsNoUnique_0(QuickMenuContextualDisplay.EnumNPublicSealedvaUnNoToUs7vUsNoUnique.NoSelection);
             //quickmenuContextualDisplay.Method_Public_Nested0_0(QuickMenuContextualDisplay.Nested0.NoSelection);
 
-            pageTransform.gameObject.SetActive(true);
-
             currentPageGetter.SetValue(quickmenu, pageTransform.gameObject);
 
             if (shortcutMenu == null)
@@ -544,16 +552,14 @@ namespace PMod.Utils
             if (userInteractMenu == null)
                 userInteractMenu = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu")?.gameObject;
 
-            if (pagename == "ShortcutMenu")
-            {
+            pageTransform.gameObject.SetActive(true);
+
+            currentPageGetter.SetValue(quickmenu, pageTransform.gameObject);
+            if (pagename == "ShortcutMenu") {
                 SetIndex(0);
-            }
-            else if (pagename == "UserInteractMenu")
-            {
-                SetIndex(3);
-            }
-            else
-            {
+                infoBar.SetActive(true);
+            } else if (pagename == "UserInteractMenu") SetIndex(3);
+            else {
                 SetIndex(-1);
                 shortcutMenu?.SetActive(false);
                 userInteractMenu?.SetActive(false);
