@@ -563,7 +563,7 @@ namespace Client.Functions.Utils
         // Set the current Quick Menu index
         public static void SetIndex(int index)
         {
-            GetQuickMenuInstance().field_Private_Int32_0 = index;
+            //GetQuickMenuInstance().field_Private_Int32_0 = index;
         }
     }
 }

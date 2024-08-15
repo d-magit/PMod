@@ -82,7 +82,7 @@ namespace Client.Functions
         private static void Patch(VRC_Pickup Item)
         {
             var pickup = Item.GetComponent<VRC_Pickup>();
-            PreviousStates.Add(Item, new [] 
+            if (!PreviousStates.ContainsKey(Item)) PreviousStates.Add(Item, new [] 
             {
                  pickup.DisallowTheft,
                  pickup.allowManipulationWhenEquipped,
