@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Client.Functions.Utils;
+using System;
 using MelonLoader;
 using UnityEngine;
-using VRC;
-using VRC.UI;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using ApiAvatar = VRC.Core.ApiAvatar;
 using APIUser = VRC.Core.APIUser;
 
-namespace Client
+namespace Client.Functions
 {
     public class ForceClone
     {
@@ -22,9 +21,10 @@ namespace Client
         private static GameObject platformIconPC;
         private static GameObject platformIconOculus;
         private static Transform cloneButton;
-        private static Transform UserInteract() => GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").transform;
-        private static Vector3 GetOriginalPos() => UserInteract().Find("ShowAuthorButton").position + UserInteract().Find("ViewAvatarThreeToggle/Button_UseSafetySettings").position - UserInteract().Find("MuteButton").position;
         private static bool isFar = true;
+        private static Transform UserInteract() => GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").transform;
+        private static Vector3 GetOriginalPos() => UserInteract().Find("ShowAuthorButton").position + 
+            UserInteract().Find("ViewAvatarThreeToggle/Button_UseSafetySettings").position - UserInteract().Find("MuteButton").position;
 
         public static void OnUiManagerInit()
         {
@@ -32,8 +32,8 @@ namespace Client
             Main.listener.OnEnabled += delegate 
             {
                 APIUser QMUser = QM.field_Private_APIUser_0;
-                toClone = PlayerManager.Method_Public_Static_Player_String_1(QMUser.id)._vrcplayer.prop_ApiAvatar_0;
-                if (toClone.releaseStatus == "public" && !QMUser.allowAvatarCopying && toClone.id != VRCPlayer.field_Internal_Static_VRCPlayer_0.prop_ApiAvatar_0.id)
+                toClone = Utilities.GetPlayerFromID(QMUser.id).prop_ApiAvatar_0;
+                if (toClone.releaseStatus == "public" && !QMUser.allowAvatarCopying && toClone.id != Utilities.GetLocalVRCPlayer().prop_ApiAvatar_0.id)
                 {
                     if (!isFar)
                     {
@@ -99,7 +99,7 @@ namespace Client
             cameraClone.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
             cameraClone.GetComponent<Button>().onClick.AddListener(new Action(() =>
             {
-                new PageAvatar { field_Public_SimpleAvatarPedestal_0 = new SimpleAvatarPedestal { field_Internal_ApiAvatar_0 = new ApiAvatar { id = toClone.id } } }.ChangeToSelectedAvatar();
+                Utilities.ChangeToAVByID(toClone.id);
                 MelonLogger.Msg(ConsoleColor.Red, "Avatar cloned: " + toClone.id);
             }));
 

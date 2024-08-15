@@ -1,10 +1,11 @@
-﻿using MelonLoader;
-using Client.Utils;
-using UIExpansionKit.API;
-using UnhollowerRuntimeLib;
-using UnityEngine;
-using Harmony;
+﻿using Client.Functions;
+using Client.Functions.Utils;
 using System;
+using Harmony;
+using UnhollowerRuntimeLib;
+using MelonLoader;
+using UnityEngine;
+using UIExpansionKit.API;
 
 namespace Client
 {
@@ -12,7 +13,7 @@ namespace Client
     {
         public const string Name = "Personal Client";
         public const string Author = "Me";
-        public const string Version = "1.0.9";
+        public const string Version = "1.1.0";
     }
 
     public class Main : MelonMod
@@ -21,7 +22,6 @@ namespace Client
         public static HarmonyInstance HarmonyInstance => Instance.Harmony;
         public static EnableDisableListener listener;
         public static ICustomShowableLayoutedMenu ClientMenu;
-        //public static QMNestedButton ClientMenu0;
 
         public override void OnApplicationStart()
         {
@@ -29,6 +29,7 @@ namespace Client
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
             UserInteractUtils.OnApplicationStart();
             ItemGrabber.OnApplicationStart();
+            NativePatches.OnApplicationStart();
             Orbit.OnApplicationStart();
             ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
             MelonLogger.Msg(ConsoleColor.Red, "Personal Client Loaded Successfully!");
@@ -37,25 +38,32 @@ namespace Client
         private static void ShowClientMenu()
         {
             ClientMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
+            ClientMenu.AddSimpleButton("Close Menu", ClientMenu.Hide);
             ClientMenu.AddSimpleButton("Orbit", () => 
             {
                 if (Orbit.IsOn) Orbit.OrbitMenu.Show();
-                else VRCUiPopupManager.field_Private_Static_VRCUiPopupManager_0.Method_Public_Void_String_String_String_Action_Action_1_VRCUiPopup_0("Orbit", $"You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.", "Close", new Action(() => { VRCUiPopupManager.field_Private_Static_VRCUiPopupManager_0.Method_Private_Void_PDM_0(); }));
+                else RiskyFuncAlert("Orbit");
             });
             ClientMenu.AddSimpleButton("ItemGrabber", () =>
             {
                 if (ItemGrabber.IsOn) ItemGrabber.PickupMenu.Show();
-                else VRCUiPopupManager.field_Private_Static_VRCUiPopupManager_0.Method_Public_Void_String_String_String_Action_Action_1_VRCUiPopup_0("ItemGrabber", $"You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.", "Close", new Action(() => { VRCUiPopupManager.field_Private_Static_VRCUiPopupManager_0.Method_Private_Void_PDM_0(); }));
+                else RiskyFuncAlert("ItemGrabber");
             });
             ClientMenu.AddSimpleButton("PhotonFreeze", () => { Freeze.ShowFreezeMenu(); });
             ClientMenu.Show();
         }
 
+        public static void RiskyFuncAlert(string FuncName) => HarmonyPatches.PopupV2(
+                FuncName,
+                $"You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
+                "Close",
+                new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
+
         public override void VRChat_OnUiManagerInit()
         {
             listener = GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").AddComponent<EnableDisableListener>();
-            //ClientMenu0 = new QMNestedButton("ShortcutMenu", 3, 2, "<color=#82ffbe>Client\n</color>" + "Menu", "Open the Mod Menu", null, null, null, null);
             NetworkEvents.OnUiManagerInit();
+            AvatarFromID.OnUiManagerInit();
             ForceClone.OnUiManagerInit();
             Orbit.OnUiManagerInit();
             UserInteractUtils.OnUiManagerInit();

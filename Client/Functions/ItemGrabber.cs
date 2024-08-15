@@ -5,15 +5,17 @@ using VRC;
 using VRC.SDKBase;
 using UIExpansionKit.API;
 using Object = UnityEngine.Object;
+using Utilities = Client.Functions.Utils.Utilities;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Client
+namespace Client.Functions
 {
     public class ItemGrabber
     {
-        private static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
-        private static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
         private static ICustomShowableLayoutedMenu SelectionMenu;
         private static VRC_Pickup[] Pickups;
+        private static Dictionary<VRC_Pickup, bool[]> PreviousStates = new();
         private static float min_distance;
         private static bool patch_all;
         private static bool take_ownership;
@@ -31,6 +33,7 @@ namespace Client
             PickupMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
             PickupMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             PickupMenu.AddSimpleButton("Patch", () => Select("Patch"));
+            PickupMenu.AddSimpleButton("Unpatch", () => Select("Unpatch"));
             PickupMenu.AddSimpleButton("Grab", () => Select("Grab"));
             OnPreferencesSaved();
         }
@@ -63,6 +66,11 @@ namespace Client
                 foreach (var Pickup in Pickups) SelectionMenu.AddSimpleButton(Pickup.name, () => Patch(Pickup));
 
             }
+            else if (Type == "Unpatch")
+            {
+                SelectionMenu.AddSimpleButton("Unpatch All", () => UnpatchAll());
+                if (PreviousStates.Count != 0) foreach (var Pickup in PreviousStates.Keys) SelectionMenu.AddSimpleButton(Pickup.name, () => Unpatch(Pickup));
+            }
             else
             {
                 SelectionMenu.AddSimpleButton("Grab in Range", () => Trigger(null));
@@ -73,19 +81,48 @@ namespace Client
 
         private static void Patch(VRC_Pickup Item)
         {
-            Item.GetComponent<VRC_Pickup>().DisallowTheft = false;
-            Item.GetComponent<VRC_Pickup>().allowManipulationWhenEquipped = true;
-            Item.GetComponent<VRC_Pickup>().pickupable = true;
+            var pickup = Item.GetComponent<VRC_Pickup>();
+            PreviousStates.Add(Item, new [] 
+            {
+                 pickup.DisallowTheft,
+                 pickup.allowManipulationWhenEquipped,
+                 pickup.pickupable,
+                 Item.gameObject.active
+            });
+            pickup.DisallowTheft = false;
+            pickup.allowManipulationWhenEquipped = true;
+            pickup.pickupable = true;
             Item.gameObject.SetActive(true);
         }
 
         private static void PatchAll() { foreach (var Pickup in Pickups) Patch(Pickup); }
 
+        private static void Unpatch(VRC_Pickup Item)
+        {
+            if (PreviousStates.ContainsKey(Item))
+            {
+                var pickup = Item.GetComponent<VRC_Pickup>();
+                var PreviousState = PreviousStates[Item];
+                pickup.DisallowTheft = PreviousState[0];
+                pickup.allowManipulationWhenEquipped = PreviousState[1];
+                pickup.pickupable = PreviousState[2];
+                Item.gameObject.SetActive(PreviousState[3]);
+                PreviousStates.Remove(Item);
+            }
+            Select("Unpatch");
+        }
+
+        private static void UnpatchAll() 
+        { 
+            while (PreviousStates.Count != 0) Unpatch(PreviousStates.First().Key);
+            Select("Unpatch");
+        }
+
         private static void Trigger(VRC_Pickup Item)
         {
             if (Item == null) foreach (var Pickup in Pickups)
             {
-                float dist = Vector3.Distance(GetLocalVRCPlayer().transform.position, Pickup.transform.position);
+                float dist = Vector3.Distance(Utilities.GetLocalVRCPlayer().transform.position, Pickup.transform.position);
                 if (min_distance == -1 || dist <= min_distance) PickupItem(Pickup);
             }
             else PickupItem(Item);
@@ -95,32 +132,18 @@ namespace Client
         {
             try
             {
-                VRCPlayerApi GetOwner() => Networking.GetOwner(Item.gameObject);
                 Patch(Item);
-                if (GetOwner().playerId != GetLocalVRCPlayerApi().playerId && take_ownership)
+                if (Networking.GetOwner(Item.gameObject).playerId != Utilities.GetLocalVRCPlayerApi().playerId && take_ownership)
                 {
                     Item.GetComponent<VRC_Pickup>().currentlyHeldBy = null;
-                    Networking.SetOwner(GetLocalVRCPlayerApi(), Item.gameObject);
+                    Networking.SetOwner(Utilities.GetLocalVRCPlayerApi(), Item.gameObject);
                 }
-                Item.transform.position = TransformOfBone(Player.prop_Player_0, HumanBodyBones.Hips).position;
+                Item.transform.position = Utilities.GetBoneTransform(Player.prop_Player_0, HumanBodyBones.Hips).position;
             }
             catch (Exception e)
             {
                 MelonLogger.Error($"Failed to grab item {Item.name}! {e}");
             }
-        }
-
-        // I took this from someone else from the mod community and I really don't remember who exactly to give the credits :( I'm very sorry.
-        private static Transform TransformOfBone(Player player, HumanBodyBones bone)
-        {
-            Transform playerPosition = player.transform;
-            VRCAvatarManager avatarManager = player.prop_VRCPlayer_0.prop_VRCAvatarManager_0;
-            if (!avatarManager) return playerPosition;
-            Animator animator = avatarManager.field_Private_Animator_0;
-            if (!animator) return playerPosition;
-            Transform boneTransform = animator.GetBoneTransform(bone);
-            if (!boneTransform) return playerPosition;
-            return boneTransform;
         }
     }
 }

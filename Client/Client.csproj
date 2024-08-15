@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -20,6 +21,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -36,6 +38,10 @@
     </Reference>
     <Reference Include="MelonLoader">
       <HintPath>..\..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\MelonLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Photon-DotNet">
+      <HintPath>..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\Photon-DotNet.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -83,11 +89,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Functions\AvatarFromID.cs" />
     <Compile Include="Functions\Freeze.cs" />
+    <Compile Include="Functions\Utils\Patches.cs" />
     <Compile Include="Functions\Utils\RubyButtonAPI.cs" />
+    <Compile Include="Functions\Utils\Utilities.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Functions\UserInteractUtils.cs" />
-    <Compile Include="Functions\EasyCrash.cs" />
     <Compile Include="Functions\EmmAllower.cs" />
     <Compile Include="Functions\ItemGrabber.cs" />
     <Compile Include="Functions\ForceClone.cs" />
