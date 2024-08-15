@@ -11,7 +11,7 @@ using Utilities = Client.Functions.Utils.Utilities;
 
 namespace Client.Functions
 {
-    public class Orbit
+    internal static class Orbit
     {
         private static ICustomShowableLayoutedMenu SelectionMenu;
         private static List<OrbitItem> Orbits;

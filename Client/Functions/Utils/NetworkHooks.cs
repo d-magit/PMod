@@ -7,7 +7,7 @@ using VRC.Core;
 
 namespace Client.Functions.Utils
 {
-    public class NetworkEvents
+    internal static class NetworkEvents
     {
         public static event Action<Player> OnJoin;
         public static event Action<Player> OnLeave;

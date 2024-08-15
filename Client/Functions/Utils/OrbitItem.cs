@@ -4,7 +4,7 @@ using VRC.SDKBase;
 
 namespace Client.Functions.Utils
 {
-    public class OrbitItem
+    internal class OrbitItem
     {
         private Vector3 InitialPos;
         private Quaternion InitialRot;

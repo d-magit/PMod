@@ -2,16 +2,16 @@
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using UnhollowerBaseLib;
 using MelonLoader;
 using Photon.Pun;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
 using VRC;
+using VRC.SDKBase;
 
 namespace Client.Functions.Utils
 {
-    internal static class HarmonyPatches
+    internal static class Methods
     {
         public static void PopupV2(string title, string innertxt, string buttontxt, Il2CppSystem.Action buttonOk, Il2CppSystem.Action<VRCUiPopup> action = null) =>
             GetPopupV2Delegate(title, innertxt, buttontxt, buttonOk, action);
@@ -21,11 +21,13 @@ namespace Client.Functions.Utils
         {
             get
             {
-                if (popupV2Delegate != null) popupV2Delegate = (PopupV2Delegate)Delegate.CreateDelegate(typeof(PopupV2Delegate), 
+                if (popupV2Delegate == null) popupV2Delegate = (PopupV2Delegate)Delegate.CreateDelegate(typeof(PopupV2Delegate), 
                     VRCUiPopupManager.prop_VRCUiPopupManager_0, 
                     typeof(VRCUiPopupManager).GetMethods()
                         .First(methodBase => methodBase.Name.StartsWith("Method_Public_Void_String_String_String_Action_Action_1_VRCUiPopup_") &&
-                        !methodBase.Name.Contains("PDM")));
+                        !methodBase.Name.Contains("PDM") &&
+                        Utilities.ContainsStr(methodBase, "UserInterface/MenuContent/Popups/StandardPopupV2") &&
+                        Utilities.WasUsedBy(methodBase, "OpenSaveSearchPopup")));
                 return popupV2Delegate;
             }
         }
@@ -43,37 +45,55 @@ namespace Client.Functions.Utils
         }
     }
 
-    internal static class NativePatches
+    //internal static class HarmonyPatches { }
+
+    internal class NativePatches
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr FreezeSetupDelegate(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
+        private delegate void ValidateAndTriggerEventDelegate(IntPtr instancePtr, IntPtr senderPtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
+        private delegate void LocalToMasterSetupDelegate(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
         private static FreezeSetupDelegate freezeSetupDelegate;
+        private static ValidateAndTriggerEventDelegate validateAndTriggerEventDelegate;
+        private static LocalToMasterSetupDelegate localToMasterSetupDelegate;
         public static void OnApplicationStart()
         {
             unsafe
             {
-                var RaiseEventMethod = typeof(PhotonNetwork).GetMethod(
-                nameof(PhotonNetwork.Method_Public_Static_Boolean_Byte_Object_RaiseEventOptions_SendOptions_0),
-                BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
-                null, new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }, null);
+                freezeSetupDelegate = NativePatchUtils.Patch<FreezeSetupDelegate>(typeof(PhotonNetwork)
+                    .GetMethod(nameof(PhotonNetwork.Method_Public_Static_Boolean_Byte_Object_RaiseEventOptions_SendOptions_0),
+                           BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
+                           null, new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }, null),
+                    NativePatchUtils.GetDetour<NativePatches>(nameof(FreezeSetup)));
 
-                var originalMethod = *(IntPtr*)(IntPtr)UnhollowerUtils.GetIl2CppMethodInfoPointerFieldForGeneratedMethod(RaiseEventMethod).GetValue(null);
+                validateAndTriggerEventDelegate = NativePatchUtils.Patch<ValidateAndTriggerEventDelegate>(typeof(VRC_EventDispatcherRFC)
+                    .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .First(m => m.ReturnType == typeof(void) && 
+                          !m.Name.Contains("PDM") &&
+                           m.GetParameters().Select(x => x.ParameterType.FullName).SequenceEqual(new Type[] 
+                           { 
+                               typeof(VRC.Player), 
+                               typeof(VRC_EventHandler.VrcEvent), 
+                               typeof(VRC_EventHandler.VrcBroadcastType), 
+                               typeof(int), 
+                               typeof(float) 
+                           }.Select(x => x.FullName))),
+                    NativePatchUtils.GetDetour<NativePatches>(nameof(ValidateAndTriggerEvent)));
 
-                MelonUtils.NativeHookAttach((IntPtr)(&originalMethod), typeof(NativePatches).GetMethod(nameof(FreezeSetup),
-                    BindingFlags.Static | BindingFlags.Public)!.MethodHandle.GetFunctionPointer());
-
-                freezeSetupDelegate = Marshal.GetDelegateForFunctionPointer<FreezeSetupDelegate>(originalMethod);
+                localToMasterSetupDelegate = NativePatchUtils.Patch<LocalToMasterSetupDelegate>(typeof(VRC_EventHandler)
+                    .GetMethod(nameof(VRC_EventHandler.InternalTriggerEvent)),
+                    NativePatchUtils.GetDetour<NativePatches>(nameof(LocalToMasterSetup)));
             }
         }
 
         private static object[] LastSent;
-        public static IntPtr FreezeSetup(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
+        private static IntPtr FreezeSetup(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
         {
             if (EType == 7)
             {
                 try
                 {
-                    if (!Freeze.IsFreeze)
+                    if (!PhotonFreeze.IsFreeze)
                     {
                         LastSent = new object[] { EType, Obj, EOptions, SOptions };
                     }
@@ -90,6 +110,42 @@ namespace Client.Functions.Utils
                 }
             }
             return freezeSetupDelegate(EType, Obj, EOptions, SOptions, nativeMethodInfo);
+        }
+
+        private static void ValidateAndTriggerEvent(IntPtr instancePtr, IntPtr senderPtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
+        {
+            try
+            {
+                VRC.Player senderPlayer = senderPtr != IntPtr.Zero ? UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC.Player>(senderPtr) : null;
+                VRC_EventHandler.VrcEvent @event = eventPtr != IntPtr.Zero ? UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC_EventHandler.VrcEvent>(eventPtr) : null;
+                if (Safety.CheckRPC(senderPlayer, @event, broadcast, instigatorId, fastForward))
+                    validateAndTriggerEventDelegate(instancePtr, senderPtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
+                else MelonLogger.Msg(ConsoleColor.Green, $"Successfully blocked event {@event.ParameterString} from player {senderPlayer?.prop_APIUser_0.displayName}.");
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in Validate Event Patch");
+                MelonLogger.Error($"{e}");
+            }
+        }
+
+        private static void LocalToMasterSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
+        {
+            try
+            {
+                if (LocalToMaster.IsForceMaster && broadcast == VRC_EventHandler.VrcBroadcastType.Local)
+                {
+                    VRC_EventHandler.VrcEvent @event = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC_EventHandler.VrcEvent>(eventPtr);
+                    MelonLogger.Msg(ConsoleColor.Green, $"Successfully patched local event {@event.ParameterString} into Master-type event.");
+                    broadcast = VRC_EventHandler.VrcBroadcastType.Master;
+                }
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in Local to Master Setup Patch");
+                MelonLogger.Error($"{e}");
+            }
+            localToMasterSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
         }
     }
 }

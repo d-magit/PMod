@@ -9,11 +9,11 @@ using APIUser = VRC.Core.APIUser;
 
 namespace Client.Functions
 {
-    public class ForceClone
+    internal static class ForceClone
     {
         private static QuickMenu QM;
         private static ApiAvatar toClone;
-        private static GameObject cameraClone;
+        private static QMSingleButton cameraClone;
         private static GameObject platformAny;
         private static GameObject platformPC;
         private static GameObject platformOculus;
@@ -38,14 +38,14 @@ namespace Client.Functions
                     if (!isFar)
                     {
                         cloneButton.position += new Vector3(100, 100, 100);
-                        cameraClone.SetActive(true);
+                        cameraClone.setActive(true);
                         isFar = true;
                     }
                 }
                 else if (isFar)
                 {
                     cloneButton.position = GetOriginalPos();
-                    cameraClone.SetActive(false);
+                    cameraClone.setActive(false);
                     isFar = false;
                 }
             };
@@ -54,7 +54,7 @@ namespace Client.Functions
                 if (isFar)
                 {
                     cloneButton.position = GetOriginalPos();
-                    cameraClone.SetActive(false);
+                    cameraClone.setActive(false);
                     isFar = false;
                 }
             };
@@ -77,9 +77,12 @@ namespace Client.Functions
         {
             QM = QuickMenu.prop_QuickMenu_0;
             cloneButton = GameObject.Find("UserInterface/QuickMenu/UserInteractMenu/CloneAvatarButton").transform;
-            cameraClone = Object.Instantiate(QM.transform.Find("CameraMenu/BackButton").gameObject, cloneButton.parent);
+            cameraClone = new QMSingleButton("UserInteractMenu", 5, 0, "Clone\nPublic\nAvatar", () => {
+                Utilities.ChangeToAVByID(toClone.id);
+                MelonLogger.Msg(ConsoleColor.Red, "Avatar cloned: " + toClone.id);
+            }, "Force Clone Avatar.", null, new Color(1, .8f, 1));
 
-            Transform platform = Object.Instantiate(cloneButton.Find("PlatformIcon"), cameraClone.transform);
+            Transform platform = Object.Instantiate(cloneButton.Find("PlatformIcon"), cameraClone.getGameObject().transform);
             Transform platformIcon = cloneButton.Find("PlatformIcon");
 
             platformAny = platform.Find("AnyIcon").gameObject;
@@ -88,22 +91,7 @@ namespace Client.Functions
             platformIconAny = platformIcon.Find("AnyIcon").gameObject;
             platformIconPC = platformIcon.Find("PCIcon").gameObject;
             platformIconOculus = platformIcon.Find("QuestIcon").gameObject;
-
-            cameraClone.transform.position = cloneButton.position;
             platform.position = cloneButton.Find("PlatformIcon").position;
-
-            cameraClone.GetComponentInChildren<Text>().text = "Clone\nPublic\nAvatar";
-            cameraClone.GetComponentInChildren<Text>().color = new Color(1, .8f, 1);
-            cameraClone.GetComponentInChildren<Image>().color = new Color(1, .8f, 1);
-
-            cameraClone.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
-            cameraClone.GetComponent<Button>().onClick.AddListener(new Action(() =>
-            {
-                Utilities.ChangeToAVByID(toClone.id);
-                MelonLogger.Msg(ConsoleColor.Red, "Avatar cloned: " + toClone.id);
-            }));
-
-            cameraClone.name = "ForceCloneAvatarButton";
         }
     }
 }
