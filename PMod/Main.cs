@@ -21,6 +21,8 @@ namespace PMod
         public const string Name = "PMod";
         public const string Author = "Elaina, Lily, Arion";
         public const string Version = "1.3.2";
+        public const string Author = "Elaina, Lily, Arion";
+        public const string Version = "1.3.3";
     }
 
     public static class Main
