@@ -12,21 +12,22 @@ namespace Client
     {
         public const string Name = "Personal Client";
         public const string Author = "Me";
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.9";
     }
 
     public class Main : MelonMod
     {
         private static MelonMod Instance;
         public static HarmonyInstance HarmonyInstance => Instance.Harmony;
-        public static ICustomShowableLayoutedMenu ClientMenu;
         public static EnableDisableListener listener;
+        public static ICustomShowableLayoutedMenu ClientMenu;
+        //public static QMNestedButton ClientMenu0;
 
         public override void OnApplicationStart()
         {
             Instance = this;
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
-            CopyAsset.OnApplicationStart();
+            UserInteractUtils.OnApplicationStart();
             ItemGrabber.OnApplicationStart();
             Orbit.OnApplicationStart();
             ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
@@ -46,23 +47,25 @@ namespace Client
                 if (ItemGrabber.IsOn) ItemGrabber.PickupMenu.Show();
                 else VRCUiPopupManager.field_Private_Static_VRCUiPopupManager_0.Method_Public_Void_String_String_String_Action_Action_1_VRCUiPopup_0("ItemGrabber", $"You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.", "Close", new Action(() => { VRCUiPopupManager.field_Private_Static_VRCUiPopupManager_0.Method_Private_Void_PDM_0(); }));
             });
+            ClientMenu.AddSimpleButton("PhotonFreeze", () => { Freeze.ShowFreezeMenu(); });
             ClientMenu.Show();
         }
 
         public override void VRChat_OnUiManagerInit()
         {
             listener = GameObject.Find("UserInterface/QuickMenu/UserInteractMenu").AddComponent<EnableDisableListener>();
-            NetworkEvents.NetworkInit();
-            CopyAsset.OnUiManagerInit();
+            //ClientMenu0 = new QMNestedButton("ShortcutMenu", 3, 2, "<color=#82ffbe>Client\n</color>" + "Menu", "Open the Mod Menu", null, null, null, null);
+            NetworkEvents.OnUiManagerInit();
             ForceClone.OnUiManagerInit();
-            Orbit.NetworkHook();
+            Orbit.OnUiManagerInit();
+            UserInteractUtils.OnUiManagerInit();
         }
 
         public override void OnPreferencesSaved()
         {
-            CopyAsset.OnPreferencesSaved();
             ItemGrabber.OnPreferencesSaved();
             Orbit.OnPreferencesSaved();
+            UserInteractUtils.OnPreferencesSaved();
         }
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)

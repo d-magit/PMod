@@ -14,17 +14,12 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <OutputPath>..\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugSymbols>true</DebugSymbols>
-    <BaseAddress>285212672</BaseAddress>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -78,28 +73,28 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="VRCCore-Standalone">
-      <HintPath>..\..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCCore-Standalone.dll</HintPath>
+      <HintPath>..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCCore-Standalone.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="VRCSDKBase">
-      <HintPath>..\..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCSDKBase.dll</HintPath>
+      <HintPath>..\..\..\..\..\Jogos\SteamLibrary\steamapps\common\VRChat\MelonLoader\Managed\VRCSDKBase.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Functions\CopyAsset.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Functions\Freeze.cs" />
+    <Compile Include="Functions\Utils\RubyButtonAPI.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="Functions\UserInteractUtils.cs" />
     <Compile Include="Functions\EasyCrash.cs" />
     <Compile Include="Functions\EmmAllower.cs" />
     <Compile Include="Functions\ItemGrabber.cs" />
-    <Compile Include="Functions\Utils\EnableDisableListener.cs" />
-    <Compile Include="Main.cs" />
     <Compile Include="Functions\ForceClone.cs" />
-    <Compile Include="Functions\Utils\NetworkHooks.cs" />
     <Compile Include="Functions\Orbit.cs" />
+    <Compile Include="Functions\Utils\NetworkHooks.cs" />
+    <Compile Include="Functions\Utils\EnableDisableListener.cs" />
     <Compile Include="Functions\Utils\OrbitItem.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

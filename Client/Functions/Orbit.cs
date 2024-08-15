@@ -56,10 +56,10 @@ namespace Client
             OnPreferencesSaved();
         }
 
-        public static void NetworkHook()
+        public static void OnUiManagerInit()
         {
-            NetworkEvents.OnPlayerLeave += OnPlayerLeave;
-            NetworkEvents.OnPlayerJoin += OnPlayerJoin;
+            NetworkEvents.OnLeave += OnLeave;
+            NetworkEvents.OnJoin += OnJoin;
             NetworkEvents.OnInstanceChange += OnInstanceChange;
         }
 
@@ -94,12 +94,12 @@ namespace Client
             StopOrbit();
         }
 
-        private static void OnPlayerJoin(Player player)
+        private static void OnJoin(Player player)
         {
             Playerlist.Add(player);
         }
 
-        private static void OnPlayerLeave(Player player)
+        private static void OnLeave(Player player)
         {
             Playerlist.Remove(player);
             if (CurrentPlayer == player) StopOrbit();
@@ -132,7 +132,7 @@ namespace Client
 
         private static void StopOrbit()
         {
-            if (Pickups != null && Orbits != null)
+            if (Pickups != null)
             {
                 for (int i = 0; i < Pickups.Count; i++)
                 {
