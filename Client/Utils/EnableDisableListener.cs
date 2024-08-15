@@ -2,7 +2,7 @@
 using UnhollowerBaseLib.Attributes;
 using UnityEngine;
 
-namespace Client.Utils
+namespace PMod.Utils
 {
     public class EnableDisableListener : MonoBehaviour
     {

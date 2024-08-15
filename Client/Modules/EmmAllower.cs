@@ -2,7 +2,7 @@
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class EmmAllower : ModuleBase
     {

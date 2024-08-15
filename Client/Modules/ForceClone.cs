@@ -1,4 +1,4 @@
-﻿using Client.Utils;
+﻿using PMod.Utils;
 using System;
 using MelonLoader;
 using UnityEngine;
@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 using ApiAvatar = VRC.Core.ApiAvatar;
 using APIUser = VRC.Core.APIUser;
 
-namespace Client.Modules
+namespace PMod.Modules
 {
     internal class ForceClone : ModuleBase
     {

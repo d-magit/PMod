@@ -2,7 +2,7 @@
 using UnityEngine;
 using VRC.SDKBase;
 
-namespace Client.Utils
+namespace PMod.Utils
 {
     internal class OrbitItem
     {

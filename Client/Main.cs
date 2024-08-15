@@ -1,4 +1,4 @@
-﻿using Client.Utils;
+﻿using PMod.Utils;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -8,26 +8,26 @@ using MelonLoader;
 using UIExpansionKit.API;
 using VRC;
 
-[assembly: AssemblyTitle(Client.BuildInfo.Name)]
-[assembly: AssemblyCopyright("Created by " + Client.BuildInfo.Author)]
-[assembly: AssemblyVersion(Client.BuildInfo.Version)]
-[assembly: AssemblyFileVersion(Client.BuildInfo.Version)]
-[assembly: MelonInfo(typeof(Client.Main), Client.BuildInfo.Name, Client.BuildInfo.Version, Client.BuildInfo.Author)]
+[assembly: AssemblyTitle(PMod.BuildInfo.Name)]
+[assembly: AssemblyCopyright("Created by " + PMod.BuildInfo.Author)]
+[assembly: AssemblyVersion(PMod.BuildInfo.Version)]
+[assembly: AssemblyFileVersion(PMod.BuildInfo.Version)]
+[assembly: MelonInfo(typeof(PMod.Main), PMod.BuildInfo.Name, PMod.BuildInfo.Version, PMod.BuildInfo.Author)]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonColor(ConsoleColor.DarkMagenta)]
 
-namespace Client
+namespace PMod
 {
     public static class BuildInfo
     {
-        public const string Name = "Personal Client";
+        public const string Name = "PMod";
         public const string Author = "Me";
         public const string Version = "1.1.6";
     }
 
     internal static class UIXManager 
     {
-        internal static void OnApplicationStart() => ExpansionKitApi.OnUiManagerInit += Main.VRChat_OnUiManagerInit;
+        public static void OnApplicationStart() => ExpansionKitApi.OnUiManagerInit += Main.VRChat_OnUiManagerInit;
     }
 
     public class Main : MelonMod
@@ -46,12 +46,12 @@ namespace Client
             NetworkEvents.OnPlayerLeft += OnPlayerLeft;
             NetworkEvents.OnPlayerJoined += OnPlayerJoined;
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
-            MelonLogger.Msg(ConsoleColor.Red, "Personal Client Loaded Successfully!");
+            MelonLogger.Msg(ConsoleColor.Red, $"{BuildInfo.Name} Loaded Successfully!");
         }
 
         private static void WaitForUiInit()
         {
-            if (MelonHandler.Mods.Any(x => x.Info.Name.Equals("UI Expansion Kit")))
+            if (MelonHandler.Mods.Any(x => x.Info.Name.Equals("UI Expansion Kit"))) 
                 typeof(UIXManager).GetMethod("OnApplicationStart").Invoke(null, null);
             else
             {
@@ -70,7 +70,7 @@ namespace Client
         {
             try
             {
-                ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
+                ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton($"{BuildInfo.Name}", () => ShowClientMenu());
                 listener = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu").gameObject.AddComponent<EnableDisableListener>();
                 ModulesManager.OnUiManagerInit();
                 NetworkEvents.OnUiManagerInit();
@@ -120,6 +120,5 @@ namespace Client
             "You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
             "Close",
             new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
-
     }
 }

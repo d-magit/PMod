@@ -11,7 +11,7 @@ using ExitGames.Client.Photon;
 using VRC;
 using VRC.SDKBase;
 
-namespace Client.Utils
+namespace PMod.Utils
 {
     internal static class Methods
     {

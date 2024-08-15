@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-namespace Client.Utils
+namespace PMod.Utils
 {
     //Credits:
     //Emilia - Porting it to MelonLoader and helping to keep the git updated
