@@ -29,13 +29,12 @@ namespace Client.Functions
 
         public static void NametagSet(Timer entry)
         {
-            APIUser User = null;
-            try { User = Utilities.GetPlayerFromID(EntryDict.FirstOrDefault(x => x.Value == entry).Key).prop_APIUser_0; } catch { }
+            APIUser User = Utilities.GetPlayerFromID(EntryDict.FirstOrDefault(x => x.Value == entry).Key)?.prop_APIUser_0;
             if (User == null) return;
 
             if (entry.IsFrozen)
             {
-                MelonLogger.Msg(ConsoleColor.Red, $"Warning! Detected crashed/frozen player: {User.displayName}");
+                MelonLogger.Msg(ConsoleColor.Red, $"Warning! Detected frozen player: {User.displayName}");
             }
             else MelonLogger.Msg(ConsoleColor.Green, $"Player {User.displayName} unfroze.");
         }
