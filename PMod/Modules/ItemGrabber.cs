@@ -123,7 +123,7 @@ namespace PMod.Modules
             try
             {
                 Patch(Item);
-                if (Networking.GetOwner(Item.gameObject).playerId != Utilities.GetLocalVRCPlayerApi().playerId && take_ownership.Value)
+                if (take_ownership.Value && Networking.GetOwner(Item.gameObject).playerId != Utilities.GetLocalVRCPlayerApi().playerId)
                 {
                     Item.GetComponent<VRC_Pickup>().currentlyHeldBy = null;
                     Networking.SetOwner(Utilities.GetLocalVRCPlayerApi(), Item.gameObject);
