@@ -1,4 +1,4 @@
-This repository contains my mods for VRChat. This is not a community-official repo because this mods can be exploited in-game. Join the [VRChat Modding Group discord](https://discord.gg/rCqKSvR) for official mods and support!  
+This repository contains my mods for VRChat. This is not a community-official repo because this mod can be exploited in-game. Join the [VRChat Modding Group discord](https://discord.gg/rCqKSvR) for official mods and support!  
 ## Special Thanks
 Special thanks to nitro. (https://github.com/nitrog0d) and the entire modding community in general for inspiring me to get interested on C# and helping me to learn and solve my mistakes :)
 
@@ -26,7 +26,7 @@ Features:
  * Allows you to forcefully clone any public avatar;
    * The button will get a different colour when the avatar is public, the person has cloning off and their avatar is not the same as yours.
  * The button will still show the compatible platforms.
- * 
+
 ## Copy Asset
 Features:
  * Allows you to copy a .vrca asset to a path of your choice;
