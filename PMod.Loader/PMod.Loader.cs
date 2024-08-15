@@ -29,7 +29,7 @@ namespace PMod.Loader
 
         // PMod info
         internal const string ModName = "PMod";
-        internal static string MainLink = "https://davi.codes/vrchat/";
+        internal static string MainLink = "https://api.example.com/vrchat/";
     }
 
     public class VersionCheckResponse
