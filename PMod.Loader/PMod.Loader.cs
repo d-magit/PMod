@@ -22,7 +22,7 @@ namespace PMod.Loader
     {
         // Loader info
         public const string Name = "PModLoader";
-        public const string Author = "Elaina & Lily";
+        public const string Author = "Elaina";
         public const string Version = "1.0.0";
 
         // PMod info
