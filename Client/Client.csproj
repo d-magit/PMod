@@ -22,8 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<VRChatFolder><!-- Insert VRChat Path Here --></VRChatFolder>
-	<MelonManaged>$(VRChatFolder)\MelonLoader\Managed</MelonManaged>
+	<MelonManaged><!-- Insert MelonLoader\Managed\ path here --></MelonManaged>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -49,7 +48,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UIExpansionKit">
-      <HintPath>$(VRChatFolder)\Mods\UIExpansionKit.dll</HintPath>
+      <HintPath>$(MelonManaged)\..\..\Mods\UIExpansionKit.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnhollowerBaseLib">
@@ -123,6 +122,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /f /y "$(TargetPath)" "$(VRChatFolder)\Mods\$(TargetFileName)*"</PostBuildEvent>
+    <PostBuildEvent>xcopy /f /y "$(TargetPath)" "$(MelonManaged)\..\..\Mods\$(TargetFileName)*"</PostBuildEvent>
   </PropertyGroup>
 </Project>
