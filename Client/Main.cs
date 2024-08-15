@@ -21,7 +21,7 @@ namespace Client
     {
         public const string Name = "Personal Client";
         public const string Author = "Me";
-        public const string Version = "1.1.2";
+        public const string Version = "1.1.3";
     }
 
     public class Main : MelonMod
@@ -42,7 +42,6 @@ namespace Client
             NativePatches.OnApplicationStart();
             ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
             MelonLogger.Msg(ConsoleColor.Red, "Personal Client Loaded Successfully!");
-
         }
 
         internal static IEnumerator WaitForUIInit()
@@ -53,6 +52,7 @@ namespace Client
             listener = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu").gameObject.AddComponent<EnableDisableListener>();
             ModulesManager.OnUiManagerInit();
             NetworkEvents.OnUiManagerInit();
+
             yield break;
         }
 
