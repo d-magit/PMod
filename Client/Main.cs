@@ -55,10 +55,10 @@ namespace Client
                 if (PhotonFreeze.IsOn) PhotonFreeze.ShowFreezeMenu();
                 else RiskyFuncAlert("PhotonFreeze");
             });
-            ClientMenu.AddSimpleButton("LocalToMaster", () =>
+            ClientMenu.AddSimpleButton("LocalToGlobal", () =>
             {
                 if (LocalToGlobal.IsOn) LocalToGlobal.ShowLocalToMasterMenu();
-                else RiskyFuncAlert("LocalToMaster");
+                else RiskyFuncAlert("LocalToGlobal");
             });
             ClientMenu.Show();
         }

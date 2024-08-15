@@ -17,12 +17,12 @@ namespace Client.Functions
         
         public static void OnApplicationStart()
         {
-            MelonPreferences.CreateCategory("CopyAsset", "Copy Asset");
-            MelonPreferences.CreateEntry("CopyAsset", "ToPath", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Assets"), "Path to save");
+            MelonPreferences.CreateCategory("UserInteractUtils", "PM - User Interact Utils");
+            MelonPreferences.CreateEntry("UserInteractUtils", "ToPath", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Assets"), "Path to save Assets");
             OnPreferencesSaved();
         }
 
-        public static void OnPreferencesSaved() => ToPath = MelonPreferences.GetEntryValue<string>("CopyAsset", "ToPath");
+        public static void OnPreferencesSaved() => ToPath = MelonPreferences.GetEntryValue<string>("UserInteractUtils", "ToPath");
 
         public static void OnUiManagerInit()
         {

@@ -13,7 +13,7 @@ namespace Client.Functions
 
         public static void OnApplicationStart()
         {
-            MelonPreferences.CreateCategory("LocalToGlobal", "Local To Global");
+            MelonPreferences.CreateCategory("LocalToGlobal", "PM - Local To Global");
             MelonPreferences.CreateEntry("LocalToGlobal", "IsOn", false, "Activate Mod? This is a risky function.");
         }
 

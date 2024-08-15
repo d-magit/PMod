@@ -25,7 +25,7 @@ namespace Client.Functions
 
         public static void OnApplicationStart()
         {
-            MelonPreferences.CreateCategory("ItemGrabber", "Item Grabber");
+            MelonPreferences.CreateCategory("ItemGrabber", "PM - Item Grabber");
             MelonPreferences.CreateEntry("ItemGrabber", "IsOn", false, "Activate Mod? This is a risky function.");
             MelonPreferences.CreateEntry("ItemGrabber", "GrabDistance", -1.0f, "Distance (meters) for grabbing all, set to -1 for unlimited.");
             MelonPreferences.CreateEntry("ItemGrabber", "PatchAllOnLoad", false, "Patch All on Scene Load");

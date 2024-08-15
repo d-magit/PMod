@@ -38,7 +38,7 @@ namespace Client.Functions
 
         public static void OnApplicationStart()
         {
-            MelonPreferences.CreateCategory("Orbit", "Orbit");
+            MelonPreferences.CreateCategory("Orbit", "PM - Orbit");
             MelonPreferences.CreateEntry("Orbit", "IsOn", false, "Activate Mod? This is a risky function.");
             MelonPreferences.CreateEntry("Orbit", "Radius", 1.0f, "Radius");
             MelonPreferences.CreateEntry("Orbit", "RotationX", 0.0f, "X Rotation");
