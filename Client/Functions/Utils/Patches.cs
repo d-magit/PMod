@@ -21,7 +21,7 @@ namespace Client.Functions.Utils
         {
             get
             {
-                if (popupV2Delegate != null)  popupV2Delegate = (PopupV2Delegate)Delegate.CreateDelegate(typeof(PopupV2Delegate), 
+                if (popupV2Delegate != null) popupV2Delegate = (PopupV2Delegate)Delegate.CreateDelegate(typeof(PopupV2Delegate), 
                     VRCUiPopupManager.prop_VRCUiPopupManager_0, 
                     typeof(VRCUiPopupManager).GetMethods()
                         .First(methodBase => methodBase.Name.StartsWith("Method_Public_Void_String_String_String_Action_Action_1_VRCUiPopup_") &&
@@ -35,7 +35,7 @@ namespace Client.Functions.Utils
         {
             get
             {
-                if (playerFromID != null) playerFromID = typeof(PlayerManager).GetMethods()
+                if (playerFromID == null) playerFromID = typeof(PlayerManager).GetMethods()
                     .Where(methodBase => methodBase.Name.StartsWith("Method_Public_Static_Player_String_") && !methodBase.Name.Contains("PDM"))
                     .OrderBy(method => UnhollowerSupport.GetIl2CppMethodCallerCount(method)).Last();
                 return playerFromID;
