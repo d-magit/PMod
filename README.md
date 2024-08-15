@@ -67,7 +67,7 @@ Before installing:
 **Oh, also, don't be an asshole by using this mods for malicious purposes and ruining everyone's fun :). I don't promote such behaviours, and I made this mods for my own personal learning, usage and to play around with my friends.**
 
 You will need [MelonLoader](https://discord.gg/2Wn3N2P) (discord link, see \#how-to-install).
-After that, drop the loader .dll in the `Mods` folder in your game's directory.
+After that, drop the [loader](https://davi.codes/vrchat/PMod.Loader.dll) .dll in the `Mods` folder in your game's directory.
 
 ## Building
 To build these, use the required libraries (found in `<vrchat install dir>/MelonLoader/Managed`) after MelonLoader installation.
