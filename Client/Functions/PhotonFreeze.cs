@@ -17,12 +17,12 @@ namespace Client.Functions
         private static Quaternion OriginalRot;
         public static int PhotonID = 0;
         public static bool IsFreeze = false;
-        public static bool IsOn;
+        public static MelonPreferences_Entry<bool> IsOn;
 
         public static void OnApplicationStart()
         {
             MelonPreferences.CreateCategory("PhotonFreeze", "PM - Photon Freeze");
-            MelonPreferences.CreateEntry("PhotonFreeze", "IsOn", false, "Activate Mod? This is a risky function.");
+            IsOn = MelonPreferences.CreateEntry("PhotonFreeze", "IsOn", false, "Activate Mod? This is a risky function.");
             NetworkEvents.OnJoin += OnJoin;
         }
 
@@ -30,11 +30,6 @@ namespace Client.Functions
         { 
             if (player.prop_APIUser_0.id == Player.prop_Player_0.prop_APIUser_0.id) 
                 PhotonID = player.gameObject.GetComponent<PhotonView>().viewIdField;
-        }
-
-        public static void OnPreferencesSaved()
-        {
-            IsOn = MelonPreferences.GetEntryValue<bool>("PhotonFreeze", "IsOn");
         }
 
         public static void ShowFreezeMenu()

@@ -1,11 +1,19 @@
 ﻿using Client.Functions;
 using Client.Functions.Utils;
 using System;
-using Harmony;
 using UnhollowerRuntimeLib;
 using MelonLoader;
 using UIExpansionKit.API;
 using System.Collections;
+using System.Reflection;
+
+[assembly: AssemblyTitle(Client.BuildInfo.Name)]
+[assembly: AssemblyCopyright("Created by " + Client.BuildInfo.Author)]
+[assembly: AssemblyVersion(Client.BuildInfo.Version)]
+[assembly: AssemblyFileVersion(Client.BuildInfo.Version)]
+[assembly: MelonInfo(typeof(Client.Main), Client.BuildInfo.Name, Client.BuildInfo.Version, Client.BuildInfo.Author)]
+[assembly: MelonGame("VRChat", "VRChat")]
+[assembly: MelonColor(ConsoleColor.DarkMagenta)]
 
 namespace Client
 {
@@ -13,13 +21,13 @@ namespace Client
     {
         public const string Name = "Personal Client";
         public const string Author = "Me";
-        public const string Version = "1.1.1";
+        public const string Version = "1.1.2";
     }
 
     public class Main : MelonMod
     {
         private static MelonMod Instance;
-        public static HarmonyInstance HarmonyInstance => Instance.Harmony;
+        public static HarmonyLib.Harmony HInstance => Instance.HarmonyInstance;
         public static EnableDisableListener listener;
         public static ICustomShowableLayoutedMenu ClientMenu;
 
@@ -45,17 +53,17 @@ namespace Client
             ClientMenu.AddSimpleButton("Close Menu", ClientMenu.Hide);
             ClientMenu.AddSimpleButton("Orbit", () => 
             {
-                if (Orbit.IsOn) Orbit.OrbitMenu.Show();
+                if (Orbit.IsOn.Value) Orbit.OrbitMenu.Show();
                 else RiskyFuncAlert("Orbit");
             });
             ClientMenu.AddSimpleButton("ItemGrabber", () =>
             {
-                if (ItemGrabber.IsOn) ItemGrabber.PickupMenu.Show();
+                if (ItemGrabber.IsOn.Value) ItemGrabber.PickupMenu.Show();
                 else RiskyFuncAlert("ItemGrabber");
             });
             ClientMenu.AddSimpleButton("PhotonFreeze", () => 
             {
-                if (PhotonFreeze.IsOn) PhotonFreeze.ShowFreezeMenu();
+                if (PhotonFreeze.IsOn.Value) PhotonFreeze.ShowFreezeMenu();
                 else RiskyFuncAlert("PhotonFreeze");
             });
             ClientMenu.AddSimpleButton("Triggers", () => Triggers.ShowTriggersMenu());
@@ -80,15 +88,6 @@ namespace Client
             Orbit.OnUiManagerInit();
             UserInteractUtils.OnUiManagerInit();
             yield break;
-        }
-
-        public override void OnPreferencesSaved()
-        {
-            ItemGrabber.OnPreferencesSaved();
-            Triggers.OnPreferencesSaved();
-            Orbit.OnPreferencesSaved();
-            PhotonFreeze.OnPreferencesSaved();
-            UserInteractUtils.OnPreferencesSaved();
         }
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)

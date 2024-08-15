@@ -11,18 +11,15 @@ namespace Client.Functions
 {
     internal static class UserInteractUtils
     {
-        private static string ToPath;
+        private static MelonPreferences_Entry<string> ToPath;
 
         public static QMNestedButton ActionMenu;
         
         public static void OnApplicationStart()
         {
             MelonPreferences.CreateCategory("UserInteractUtils", "PM - User Interact Utils");
-            MelonPreferences.CreateEntry("UserInteractUtils", "ToPath", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Assets"), "Path to save Assets");
-            OnPreferencesSaved();
+            ToPath = MelonPreferences.CreateEntry("UserInteractUtils", "ToPath", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Assets"), "Path to save Assets");
         }
-
-        public static void OnPreferencesSaved() => ToPath = MelonPreferences.GetEntryValue<string>("UserInteractUtils", "ToPath");
 
         public static void OnUiManagerInit()
         {
@@ -34,13 +31,13 @@ namespace Client.Functions
         private static void CopyAsset()
         {
             ApiAvatar avatar = Utilities.GetPlayerFromID(QuickMenu.prop_QuickMenu_0.field_Private_APIUser_0.id).prop_ApiAvatar_0;
-            if (!Directory.Exists(ToPath)) Directory.CreateDirectory(ToPath);
+            if (!Directory.Exists(ToPath.Value)) Directory.CreateDirectory(ToPath.Value);
             try
             {
                 ToCopyAsset(avatar);
                 Methods.PopupV2(
                     "Copy Asset", 
-                    $"Successfully copied avatar \"{avatar.name}\" to folder \"{ToPath}\"!", 
+                    $"Successfully copied avatar \"{avatar.name}\" to folder \"{ToPath.Value}\"!", 
                     "Close", 
                     new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
             }
@@ -76,7 +73,7 @@ namespace Client.Functions
                         ComputeVersionString(avatar.version)))
                     .GetFiles("*.*", SearchOption.AllDirectories))
                 if (file.Name.Contains("__data")) 
-                    File.Copy(file.FullName, Path.Combine(ToPath, $"{avatar.id}.vrca"), true); 
+                    File.Copy(file.FullName, Path.Combine(ToPath.Value, $"{avatar.id}.vrca"), true); 
         }
     }
 }

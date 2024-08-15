@@ -30,24 +30,24 @@ namespace Client.Functions.Utils
 
         private Vector3 CircularRot()
         {
-            double Angle = Orbit.Timer * Orbit.speed + 2 * Math.PI * Index;
-            return Orbit.OrbitCenter + Orbit.rotationy * (Orbit.rotation * new Vector3((float)Math.Cos(Angle) * Orbit.radius, 0, (float)Math.Sin(Angle) * Orbit.radius));
+            double Angle = Orbit.Timer * Orbit.speed.Value + 2 * Math.PI * Index;
+            return Orbit.OrbitCenter + Orbit.rotationy * (Orbit.rotation * new Vector3((float)Math.Cos(Angle) * Orbit.radius.Value, 0, (float)Math.Sin(Angle) * Orbit.radius.Value));
         }
 
         private Vector3 CylindricalRot()
         {
-            double Angle = Orbit.Timer * Orbit.speed + 2 * Math.PI * Index;
+            double Angle = Orbit.Timer * Orbit.speed.Value + 2 * Math.PI * Index;
             return Orbit.OrbitCenter + new Vector3(0, (float)(Orbit.PlayerHeight * Index), 0) + Orbit.rotationy * 
-                (Orbit.rotation * new Vector3((float)Math.Cos(Angle) * Orbit.radius, 0, (float)Math.Sin(Angle) * Orbit.radius));
+                (Orbit.rotation * new Vector3((float)Math.Cos(Angle) * Orbit.radius.Value, 0, (float)Math.Sin(Angle) * Orbit.radius.Value));
         }
 
         private Vector3 SphericalRot()
         {
-            double Angle = (Orbit.Timer * Orbit.speed) / (4 * Math.PI) + Index * 360;
-            double Height = Orbit.PlayerHeight * ((Orbit.Timer * Orbit.speed / 2 + Index) % 1);
+            double Angle = (Orbit.Timer * Orbit.speed.Value) / (4 * Math.PI) + Index * 360;
+            double Height = Orbit.PlayerHeight * ((Orbit.Timer * Orbit.speed.Value / 2 + Index) % 1);
             Quaternion Rotation = Quaternion.Euler(0, (float)Angle, 0);
             return Orbit.OrbitCenter + Orbit.rotationy * (Orbit.rotation * 
-                (Rotation * new Vector3((float)(4 * Math.Sqrt(Height * Orbit.PlayerHeight - Math.Pow(Height, 2)) * Orbit.radius), (float)Height, 0)));
+                (Rotation * new Vector3((float)(4 * Math.Sqrt(Height * Orbit.PlayerHeight - Math.Pow(Height, 2)) * Orbit.radius.Value), (float)Height, 0)));
         }
 
         public Vector3 CurrentPos()
@@ -63,7 +63,7 @@ namespace Client.Functions.Utils
 
         public Quaternion CurrentRot()
         {
-            float Angle = (float)(Orbit.Timer * 50f * Orbit.speed + 2 * Math.PI * Index);
+            float Angle = (float)(Orbit.Timer * 50f * Orbit.speed.Value + 2 * Math.PI * Index);
             if (IsOn) return Quaternion.Euler(-Angle, 0, -Angle);
             else return InitialRot;
         }
