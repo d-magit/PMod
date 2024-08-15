@@ -1,6 +1,0 @@
-D:\Davi\Code\C#\Client\Client\obj\Release\Client.csprojAssemblyReference.cache
-D:\Davi\Code\C#\Client\Client\obj\Release\Client.csproj.CoreCompileInputs.cache
-D:\Davi\Code\C#\Client\Client\obj\Release\Client.dll
-D:\Davi\Code\C#\Client.dll
-D:\Davi\Code\C#\Client.pdb
-D:\Davi\Code\C#\Client\Client.dll
