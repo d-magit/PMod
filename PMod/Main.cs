@@ -36,7 +36,7 @@ namespace PMod
             NetworkEvents.OnPlayerLeft += OnPlayerLeft;
             NetworkEvents.OnPlayerJoined += OnPlayerJoined;
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
-            PLogger.Msg(ConsoleColor.DarkMagenta, $"{BuildInfo.Name} Loaded Successfully!");
+            PLogger.Msg(ConsoleColor.Green, $"{BuildInfo.Name} Loaded Successfully!");
         }
 
         public static void VRChat_OnUiManagerInit()
