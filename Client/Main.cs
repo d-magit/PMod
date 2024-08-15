@@ -1,10 +1,11 @@
 ﻿using Client.Utils;
 using System;
+using System.Linq;
+using System.Reflection;
+using System.Collections;
 using UnhollowerRuntimeLib;
 using MelonLoader;
 using UIExpansionKit.API;
-using System.Collections;
-using System.Reflection;
 using VRC;
 
 [assembly: AssemblyTitle(Client.BuildInfo.Name)]
@@ -21,7 +22,12 @@ namespace Client
     {
         public const string Name = "Personal Client";
         public const string Author = "Me";
-        public const string Version = "1.1.5";
+        public const string Version = "1.1.6";
+    }
+
+    internal static class UIXManager 
+    {
+        internal static void OnApplicationStart() => ExpansionKitApi.OnUiManagerInit += Main.VRChat_OnUiManagerInit;
     }
 
     public class Main : MelonMod
@@ -34,26 +40,46 @@ namespace Client
         public override void OnApplicationStart()
         {
             Instance = this;
-            NetworkEvents.OnPlayerJoined += OnPlayerJoined;
-            NetworkEvents.OnPlayerLeft += OnPlayerLeft;
-            MelonCoroutines.Start(WaitForUIInit());
-            ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
+            WaitForUiInit();
             ModulesManager.Initialize();
             NativePatches.OnApplicationStart();
-            ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
+            NetworkEvents.OnPlayerLeft += OnPlayerLeft;
+            NetworkEvents.OnPlayerJoined += OnPlayerJoined;
+            ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
             MelonLogger.Msg(ConsoleColor.Red, "Personal Client Loaded Successfully!");
         }
 
-        internal static IEnumerator WaitForUIInit()
+        private static void WaitForUiInit()
         {
-            while (QuickMenu.prop_QuickMenu_0 == null)
-                yield return null;
+            if (MelonHandler.Mods.Any(x => x.Info.Name.Equals("UI Expansion Kit")))
+                typeof(UIXManager).GetMethod("OnApplicationStart").Invoke(null, null);
+            else
+            {
+                MelonLogger.Warning("Error while using UiExpansionKit (UIX)'s UiInit. Using backup coroutine method.");
+                static IEnumerator OnUiManagerInit()
+                {
+                    while (VRCUiManager.prop_VRCUiManager_0 == null)
+                        yield return null;
+                    VRChat_OnUiManagerInit();
+                }
+                MelonCoroutines.Start(OnUiManagerInit());
+            }
+        }
 
-            listener = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu").gameObject.AddComponent<EnableDisableListener>();
-            ModulesManager.OnUiManagerInit();
-            NetworkEvents.OnUiManagerInit();
-
-            yield break;
+        internal static void VRChat_OnUiManagerInit()
+        {
+            try
+            {
+                ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
+                listener = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu").gameObject.AddComponent<EnableDisableListener>();
+                ModulesManager.OnUiManagerInit();
+                NetworkEvents.OnUiManagerInit();
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Warning("Failed to initialize mod!");
+                MelonLogger.Error(e);
+            }
         }
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName) => ModulesManager.OnSceneWasLoaded(buildIndex, sceneName);

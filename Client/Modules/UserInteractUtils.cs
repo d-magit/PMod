@@ -70,7 +70,7 @@ namespace Client.Modules
 
         private string ByteArrayToString(byte[] ba)
         {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            StringBuilder hex = new(ba.Length * 2);
             foreach (byte b in ba) hex.AppendFormat("{0:x2}", b);
             return hex.ToString();
         }
@@ -86,7 +86,7 @@ namespace Client.Modules
         {
             foreach (var file in new DirectoryInfo(Path.Combine(
                         AssetBundleDownloadManager.prop_AssetBundleDownloadManager_0.field_Private_Cache_0.path,
-                        ByteArrayToString(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(avatar.id))).ToUpper().Substring(0, 16),
+                        ByteArrayToString(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(avatar.assetUrl.Substring(avatar.assetUrl.IndexOf("file_"), 41)))).ToUpper().Substring(0, 16),
                         ComputeVersionString(avatar.version)))
                     .GetFiles("*.*", SearchOption.AllDirectories))
                 if (file.Name.Contains("__data"))

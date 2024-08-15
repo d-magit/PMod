@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using MelonLoader;
 using UnityEngine;
 using VRC;
@@ -6,8 +8,6 @@ using VRC.SDKBase;
 using UIExpansionKit.API;
 using Object = UnityEngine.Object;
 using Utilities = Client.Utils.Utilities;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Client.Modules
 {
