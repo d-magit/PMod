@@ -2,7 +2,6 @@
 using System;
 using MelonLoader;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using ApiAvatar = VRC.Core.ApiAvatar;
 using APIUser = VRC.Core.APIUser;

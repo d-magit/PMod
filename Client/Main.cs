@@ -27,6 +27,7 @@ namespace Client
             Instance = this;
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
             NativePatches.OnApplicationStart();
+            FrozenPlayersManager.OnApplicationStart();
             ItemGrabber.OnApplicationStart();
             Triggers.OnApplicationStart();
             Orbit.OnApplicationStart();

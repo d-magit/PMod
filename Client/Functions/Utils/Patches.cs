@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using UnhollowerBaseLib;
 using MelonLoader;
 using Photon.Pun;
 using Photon.Realtime;
@@ -50,8 +52,10 @@ namespace Client.Functions.Utils
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr FreezeSetupDelegate(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
         private delegate void LocalToGlobalSetupDelegate(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
+        private delegate IntPtr OnPlayerNetDecodeDelegate(IntPtr instancePointer, IntPtr objectsPointer, int objectIndex, float sendTime, IntPtr nativeMethodPointer);
         private static FreezeSetupDelegate freezeSetupDelegate;
         private static LocalToGlobalSetupDelegate localToGlobalSetupDelegate;
+        private static readonly List<OnPlayerNetDecodeDelegate> dontGarbageCollectDelegates = new List<OnPlayerNetDecodeDelegate>();
         public static void OnApplicationStart()
         {
             unsafe
@@ -65,6 +69,21 @@ namespace Client.Functions.Utils
                 localToGlobalSetupDelegate = NativePatchUtils.Patch<LocalToGlobalSetupDelegate>(typeof(VRC_EventHandler)
                     .GetMethod(nameof(VRC_EventHandler.InternalTriggerEvent)),
                     NativePatchUtils.GetDetour<NativePatches>(nameof(LocalToGlobalSetup)));
+
+                foreach (MethodInfo method in typeof(PlayerNet).GetMethods().Where(mi => mi.GetParameters().Length == 3 && mi.Name.StartsWith("Method_Public_Virtual_Final_New_Void_ValueTypePublicSealed")))
+                {
+                    var originalMethodPointer = *(IntPtr*)(IntPtr)UnhollowerUtils.GetIl2CppMethodInfoPointerFieldForGeneratedMethod(method).GetValue(null);
+
+                    OnPlayerNetDecodeDelegate originalDecodeDelegate = null;
+
+                    OnPlayerNetDecodeDelegate replacement = (instancePointer, objectsPointer, objectIndex, sendTime, nativeMethodPointer) => PlayerNetPatch(instancePointer, objectsPointer, objectIndex, sendTime, nativeMethodPointer, originalDecodeDelegate);
+
+                    dontGarbageCollectDelegates.Add(replacement); // Add to list to prevent from being garbage collected
+
+                    MelonUtils.NativeHookAttach((IntPtr)(&originalMethodPointer), Marshal.GetFunctionPointerForDelegate(replacement));
+
+                    originalDecodeDelegate = Marshal.GetDelegateForFunctionPointer<OnPlayerNetDecodeDelegate>(originalMethodPointer);
+                }
             }
         }
 
@@ -112,6 +131,31 @@ namespace Client.Functions.Utils
                 MelonLogger.Error($"{e}");
             }
             localToGlobalSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
+        }
+
+        private static IntPtr PlayerNetPatch(IntPtr instancePointer, IntPtr objectsPointer, int objectIndex, float sendTime, IntPtr nativeMethodPointer, OnPlayerNetDecodeDelegate originalDecodeDelegate)
+        {
+            IntPtr result = originalDecodeDelegate(instancePointer, objectsPointer, objectIndex, sendTime, nativeMethodPointer);
+            try
+            {
+                if (result != IntPtr.Zero)
+                {
+                    PlayerNet playerNet = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<PlayerNet>(instancePointer);
+                    if (playerNet != null)
+                    {
+                        Timer entry = null;
+                        try { entry = FrozenPlayersManager.EntryDict[playerNet.prop_Player_0.prop_APIUser_0.id]; } catch { };
+                        if (entry != null)
+                            entry.RestartTimer();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in OnPlayerNetPatch");
+                MelonLogger.Error($"{e}");
+            }
+            return result;
         }
     }
 }
