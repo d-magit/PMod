@@ -20,26 +20,19 @@ namespace Client.Functions.Utils
         public static VRCPlayer GetLocalVRCPlayer() => VRCPlayer.field_Internal_Static_VRCPlayer_0;
         public static VRCPlayerApi GetLocalVRCPlayerApi() => Player.prop_Player_0.prop_VRCPlayerApi_0;
         public static Player GetPlayerFromID(string id) => (Player)Methods.PlayerFromID.Invoke(null, new object[] { id });
-        public static bool IsSDK2World() => GetWorldSDKVersion() == WorldSDKVersion.SDK2;
-        private enum WorldSDKVersion
+        public static void ChangeToAVByID(string id) => new PageAvatar
+            { field_Public_SimpleAvatarPedestal_0 = new SimpleAvatarPedestal
+            { field_Internal_ApiAvatar_0 = new ApiAvatar 
+            { id = id } } }
+        .ChangeToSelectedAvatar();
+        public enum WorldSDKVersion
         {
             None,
             SDK2,
             SDK3
         }
 
-        public static void ChangeToAVByID(string id) => new PageAvatar
-        {
-            field_Public_SimpleAvatarPedestal_0 = new SimpleAvatarPedestal
-            {
-                field_Internal_ApiAvatar_0 = new ApiAvatar
-                {
-                    id = id
-                }
-            }
-        }.ChangeToSelectedAvatar();
-
-        private static WorldSDKVersion GetWorldSDKVersion()
+        public static WorldSDKVersion GetWorldSDKVersion()
         {
             if (!VRC_SceneDescriptor._instance) return WorldSDKVersion.None;
             if (VRC_SceneDescriptor._instance.TryCast<VRCSDK2.VRC_SceneDescriptor>() != null) return WorldSDKVersion.SDK2;
@@ -86,8 +79,7 @@ namespace Client.Functions.Utils
 
     internal static class NativePatchUtils
     {
-        public static unsafe TDelegate Patch<TDelegate>(MethodInfo originalMethod, IntPtr patchDetour)
-            where TDelegate : Delegate
+        public static unsafe TDelegate Patch<TDelegate>(MethodInfo originalMethod, IntPtr patchDetour) where TDelegate : Delegate
         {
             IntPtr original = *(IntPtr*)(IntPtr)UnhollowerUtils.GetIl2CppMethodInfoPointerFieldForGeneratedMethod(originalMethod).GetValue(null);
             MelonUtils.NativeHookAttach((IntPtr)(&original), patchDetour);
@@ -101,9 +93,9 @@ namespace Client.Functions.Utils
 
     internal class Timer
     {
-        public bool IsFrozen;
         private Stopwatch timer;
         public GameObject text;
+        public bool IsFrozen;
 
         public Timer()
         {

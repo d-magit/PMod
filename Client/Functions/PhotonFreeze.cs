@@ -1,20 +1,21 @@
 ﻿using Client.Functions.Utils;
 using UnityEngine;
+using MelonLoader;
+using Photon.Pun;
 using VRC;
 using UIExpansionKit.API;
 using Object = UnityEngine.Object;
-using MelonLoader;
 //using FlatNetworkBufferSerializer = MonoBehaviour2PrivateHa1ObVeObAcVeSeAc1Unique;
 
 namespace Client.Functions
 {
-    // Incomplete
     internal static class PhotonFreeze
     {
         private static ICustomShowableLayoutedMenu FreezeMenu;
         private static Transform CloneObj;
         private static Vector3 OriginalPos;
         private static Quaternion OriginalRot;
+        public static int PhotonID = 0;
         public static bool IsFreeze = false;
         public static bool IsOn;
 
@@ -22,6 +23,13 @@ namespace Client.Functions
         {
             MelonPreferences.CreateCategory("PhotonFreeze", "PM - Photon Freeze");
             MelonPreferences.CreateEntry("PhotonFreeze", "IsOn", false, "Activate Mod? This is a risky function.");
+            NetworkEvents.OnJoin += OnJoin;
+        }
+
+        private static void OnJoin(Player player) 
+        { 
+            if (player.prop_APIUser_0.id == Player.prop_Player_0.prop_APIUser_0.id) 
+                PhotonID = player.gameObject.GetComponent<PhotonView>().viewIdField;
         }
 
         public static void OnPreferencesSaved()

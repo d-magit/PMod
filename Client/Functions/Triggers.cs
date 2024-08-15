@@ -30,7 +30,7 @@ namespace Client.Functions
             TriggersMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             string btnName = "LocalToGlobal - ";
             Action action = null;
-            if (IsOn && Utils.Utilities.IsSDK2World())
+            if (IsOn && Utils.Utilities.GetWorldSDKVersion() == Utils.Utilities.WorldSDKVersion.SDK2)
             {
                 btnName += "On";
                 action = () => ShowLocalToGlobalMenu();
