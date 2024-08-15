@@ -87,9 +87,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Functions\CopyAsset.cs" />
     <Compile Include="Functions\EasyCrash.cs" />
+    <Compile Include="Functions\EmmAllower.cs" />
     <Compile Include="Functions\ItemGrabber.cs" />
-    <Compile Include="ModMain.cs" />
+    <Compile Include="Functions\Utils\EnableDisableListener.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="Functions\ForceClone.cs" />
     <Compile Include="Functions\Utils\NetworkHooks.cs" />
     <Compile Include="Functions\Orbit.cs" />
