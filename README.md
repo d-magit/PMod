@@ -33,19 +33,23 @@ Features:
  * There's a setting to deactivate this in case u use other clients.
 
 ## Freeze/FreeCam
+Features:
  * Allows you to freeze yourself;
    * This will essentially look for others as if you'd crashed.
  * Also allows you to teleport back to original location so it's easier n faster;
  * There will be a clone with your last state showing what others are seeing of you.
 
 ## Global Triggers
+Features:
  * Allow you to use Global instead of Local for triggers on SDK2 worlds.
    * Also allows you to selectively trigger anything in the menu.
 
 ## See frozen/crashed players
+Features:
  * Shows on the nametag when a player is freezing/using freecam. 
 
 ## Avatar from ID
+Features:
  * Changes into an Avatar through it's ID.
 
 ## Copy Asset
