@@ -45,16 +45,12 @@ namespace Client.Functions.Utils
         }
     }
 
-    //internal static class HarmonyPatches { }
-
     internal class NativePatches
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate IntPtr FreezeSetupDelegate(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo);
-        private delegate void ValidateAndTriggerEventDelegate(IntPtr instancePtr, IntPtr senderPtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
         private delegate void LocalToGlobalSetupDelegate(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo);
         private static FreezeSetupDelegate freezeSetupDelegate;
-        private static ValidateAndTriggerEventDelegate validateAndTriggerEventDelegate;
         private static LocalToGlobalSetupDelegate localToGlobalSetupDelegate;
         public static void OnApplicationStart()
         {
@@ -65,20 +61,6 @@ namespace Client.Functions.Utils
                            BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
                            null, new[] { typeof(byte), typeof(Il2CppSystem.Object), typeof(RaiseEventOptions), typeof(SendOptions) }, null),
                     NativePatchUtils.GetDetour<NativePatches>(nameof(FreezeSetup)));
-
-                validateAndTriggerEventDelegate = NativePatchUtils.Patch<ValidateAndTriggerEventDelegate>(typeof(VRC_EventDispatcherRFC)
-                    .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                    .First(m => m.ReturnType == typeof(void) && 
-                          !m.Name.Contains("PDM") &&
-                           m.GetParameters().Select(x => x.ParameterType.FullName).SequenceEqual(new Type[] 
-                           { 
-                               typeof(VRC.Player), 
-                               typeof(VRC_EventHandler.VrcEvent), 
-                               typeof(VRC_EventHandler.VrcBroadcastType), 
-                               typeof(int), 
-                               typeof(float) 
-                           }.Select(x => x.FullName))),
-                    NativePatchUtils.GetDetour<NativePatches>(nameof(ValidateAndTriggerEvent)));
 
                 localToGlobalSetupDelegate = NativePatchUtils.Patch<LocalToGlobalSetupDelegate>(typeof(VRC_EventHandler)
                     .GetMethod(nameof(VRC_EventHandler.InternalTriggerEvent)),
@@ -112,32 +94,16 @@ namespace Client.Functions.Utils
             return freezeSetupDelegate(EType, Obj, EOptions, SOptions, nativeMethodInfo);
         }
 
-        private static void ValidateAndTriggerEvent(IntPtr instancePtr, IntPtr senderPtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
-        {
-            try
-            {
-                VRC.Player senderPlayer = senderPtr != IntPtr.Zero ? UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC.Player>(senderPtr) : null;
-                VRC_EventHandler.VrcEvent @event = eventPtr != IntPtr.Zero ? UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC_EventHandler.VrcEvent>(eventPtr) : null;
-                if (Safety.CheckRPC(senderPlayer, @event, broadcast, instigatorId, fastForward))
-                    validateAndTriggerEventDelegate(instancePtr, senderPtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
-                else MelonLogger.Msg(ConsoleColor.Green, $"Successfully blocked event {@event.ParameterString} from player {senderPlayer?.prop_APIUser_0.displayName}.");
-            }
-            catch (Exception e)
-            {
-                MelonLogger.Msg(ConsoleColor.Yellow, "Something went wrong in Validate Event Patch");
-                MelonLogger.Error($"{e}");
-            }
-        }
-
+        public static bool triggerOnce = false;
         private static void LocalToGlobalSetup(IntPtr instancePtr, IntPtr eventPtr, VRC_EventHandler.VrcBroadcastType broadcast, int instigatorId, float fastForward, IntPtr nativeMethodInfo)
         {
             try
             {
-                if (LocalToGlobal.IsForceGlobal && broadcast == VRC_EventHandler.VrcBroadcastType.Local)
+                if ((Triggers.IsAlwaysForceGlobal || triggerOnce) && broadcast == VRC_EventHandler.VrcBroadcastType.Local)
                 {
                     VRC_EventHandler.VrcEvent @event = UnhollowerSupport.Il2CppObjectPtrToIl2CppObject<VRC_EventHandler.VrcEvent>(eventPtr);
-                    MelonLogger.Msg(ConsoleColor.Green, $"Successfully patched local event {@event.ParameterString} into AlwaysUnbuffered event.");
                     broadcast = VRC_EventHandler.VrcBroadcastType.AlwaysUnbuffered;
+                    if (triggerOnce) triggerOnce = false;
                 }
             }
             catch (Exception e)

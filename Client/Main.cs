@@ -28,7 +28,7 @@ namespace Client
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
             NativePatches.OnApplicationStart();
             ItemGrabber.OnApplicationStart();
-            LocalToGlobal.OnApplicationStart();
+            Triggers.OnApplicationStart();
             Orbit.OnApplicationStart();
             PhotonFreeze.OnApplicationStart();
             UserInteractUtils.OnApplicationStart();
@@ -55,11 +55,7 @@ namespace Client
                 if (PhotonFreeze.IsOn) PhotonFreeze.ShowFreezeMenu();
                 else RiskyFuncAlert("PhotonFreeze");
             });
-            ClientMenu.AddSimpleButton("LocalToGlobal", () =>
-            {
-                if (LocalToGlobal.IsOn) LocalToGlobal.ShowLocalToMasterMenu();
-                else RiskyFuncAlert("LocalToGlobal");
-            });
+            ClientMenu.AddSimpleButton("Triggers", () => Triggers.ShowTriggersMenu());
             ClientMenu.Show();
         }
 
@@ -82,7 +78,7 @@ namespace Client
         public override void OnPreferencesSaved()
         {
             ItemGrabber.OnPreferencesSaved();
-            LocalToGlobal.OnPreferencesSaved();
+            Triggers.OnPreferencesSaved();
             Orbit.OnPreferencesSaved();
             PhotonFreeze.OnPreferencesSaved();
             UserInteractUtils.OnPreferencesSaved();
