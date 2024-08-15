@@ -31,7 +31,7 @@ namespace PMod.Modules
             patch_all = MelonPreferences.CreateEntry("ItemGrabber", "PatchAllOnLoad", false, "Patch All on Scene Load");
             take_ownership = MelonPreferences.CreateEntry("ItemGrabber", "TakeOwnership", true, "Take Ownership of Object on Grab");
             PickupMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
-            PickupMenu.AddSimpleButton("Go back", () => PMod.ClientMenu.Show());
+            PickupMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
             PickupMenu.AddSimpleButton("Patch", () => Select("Patch"));
             PickupMenu.AddSimpleButton("Unpatch", () => Select("Unpatch"));
             PickupMenu.AddSimpleButton("Grab", () => Select("Grab"));

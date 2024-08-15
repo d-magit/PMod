@@ -22,9 +22,9 @@ namespace PMod
         public const string Version = "1.1.6";
     }
 
-    public static class PMod
+    public static class Main
     {
-        internal static HarmonyLib.Harmony HInstance => MelonHandler.Mods.First(m => m.Info.Name == Info.Name).HarmonyInstance;
+        internal static HarmonyLib.Harmony HInstance => MelonHandler.Mods.First(m => m.Info.Name == LInfo.Name).HarmonyInstance;
         internal static EnableDisableListener listener;
         internal static ICustomShowableLayoutedMenu ClientMenu;
 
