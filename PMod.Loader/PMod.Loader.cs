@@ -27,13 +27,13 @@ public static class LInfo
 {
     // Loader info
     public const string Name = "PMod.Loader";
-    public const string Author = "Davi";
+    public const string Author = "Elaina";
     public const string Version = "1.0.7";
     public const ConsoleColor MelonColor = ConsoleColor.DarkMagenta;
 
     // PMod info
     internal const string ModName = "PMod";
-    internal const string MainLink = "https://davi.codes/vrchat/";
+    internal const string MainLink = "https://api.example.com/vrchat/";
 }
 #endregion
 
