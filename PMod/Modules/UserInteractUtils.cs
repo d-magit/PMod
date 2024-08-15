@@ -54,7 +54,7 @@ namespace PMod.Modules
             try
             {
                 ToCopyAsset(avatar);
-                Methods.PopupV2(
+                DelegateMethods.PopupV2(
                     "Copy Asset",
                     $"Successfully copied avatar \"{avatar.name}\" to folder \"{ToPath.Value}\"!",
                     "Close",
@@ -62,7 +62,7 @@ namespace PMod.Modules
             }
             catch (Exception e)
             {
-                Methods.PopupV2(
+                DelegateMethods.PopupV2(
                     "Copy Asset",
                     $"Failed to copy avatar \"{avatar.name}\" :(\nIf you see this message, please send the devs your last Melon log.",
                     "Close",
