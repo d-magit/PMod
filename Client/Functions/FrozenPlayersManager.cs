@@ -1,10 +1,9 @@
 ﻿using Client.Functions.Utils;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using MelonLoader;
+using UnityEngine;
+using TMPro;
 using VRC;
-using VRC.Core;
+using Object = UnityEngine.Object;
 
 namespace Client.Functions
 {
@@ -22,21 +21,36 @@ namespace Client.Functions
         {
             var id = player.prop_APIUser_0.id;
             if (id != Player.prop_Player_0.prop_APIUser_0.id)
-                EntryDict.Add(id, new Timer());
+            {
+                Timer timer = new();
+                EntryDict.Add(id, timer);
+                var text = player.transform.Find("Player Nameplate/Canvas/Nameplate/Contents/Main/Text Container/Sub-Text").gameObject;
+                timer.text = Object.Instantiate(text, text.transform.parent);
+                timer.text.transform.SetSiblingIndex(1);
+                var TM = timer.text.GetComponent<TextMeshProUGUI>();
+                TM.text = "Frozen";
+                TM.color = Color.cyan;
+            }
         }
 
         private static void OnLeave(Player player) => EntryDict.Remove(player.prop_APIUser_0.id);
 
         public static void NametagSet(Timer entry)
         {
-            APIUser User = Utilities.GetPlayerFromID(EntryDict.FirstOrDefault(x => x.Value == entry).Key)?.prop_APIUser_0;
-            if (User == null) return;
-
-            if (entry.IsFrozen)
+            try
             {
-                MelonLogger.Msg(ConsoleColor.Red, $"Warning! Detected frozen player: {User.displayName}");
-            }
-            else MelonLogger.Msg(ConsoleColor.Green, $"Player {User.displayName} unfroze.");
+                var rect = entry.text.transform.parent.Find("Name").GetComponent<RectTransform>();
+                if (entry.IsFrozen)
+                {
+                    rect.sizeDelta = new(rect.sizeDelta.x, rect.sizeDelta.y - 30);
+                    entry.text?.SetActive(true);
+                }
+                else
+                {
+                    rect.sizeDelta = new(rect.sizeDelta.x, rect.sizeDelta.y + 30);
+                    entry.text?.SetActive(false);
+                }
+            } catch { }
         }
     }
 }
