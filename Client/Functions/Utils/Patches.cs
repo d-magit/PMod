@@ -87,7 +87,7 @@ namespace Client.Functions.Utils
             }
         }
 
-        private static object[] LastSent;
+        private static Il2CppSystem.Object LastSent;
         private static IntPtr FreezeSetup(byte EType, IntPtr Obj, IntPtr EOptions, IntPtr SOptions, IntPtr nativeMethodInfo)
         {
             if (EType == 7 && Il2CppArrayBase<int>.WrapNativeGenericArrayPointer(Obj)[0] == PhotonFreeze.PhotonID)
@@ -95,9 +95,9 @@ namespace Client.Functions.Utils
                 try
                 {
                     if (!PhotonFreeze.IsFreeze)
-                        LastSent = new object[] { EType, Obj, EOptions, SOptions };
+                        LastSent = new Il2CppSystem.Object(Obj);
                     else
-                        return IntPtr.Zero; // freezeSetupDelegate((byte)LastSent[0], (IntPtr)LastSent[1], (IntPtr)LastSent[2], (IntPtr)LastSent[3], nativeMethodInfo);
+                        return freezeSetupDelegate(EType, LastSent.Pointer, EOptions, SOptions, nativeMethodInfo);
                 }
                 catch (Exception e)
                 {
