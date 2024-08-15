@@ -99,7 +99,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Functions\AvatarFromID.cs" />
     <Compile Include="Functions\PhotonFreeze.cs" />
-    <Compile Include="Functions\LocalToMaster.cs" />
+    <Compile Include="Functions\LocalToGlobal.cs" />
     <Compile Include="Functions\Safety.cs" />
     <Compile Include="Functions\Utils\Patches.cs" />
     <Compile Include="Functions\Utils\RubyButtonAPI.cs" />
@@ -110,7 +110,7 @@
     <Compile Include="Functions\ItemGrabber.cs" />
     <Compile Include="Functions\ForceClone.cs" />
     <Compile Include="Functions\Orbit.cs" />
-    <Compile Include="Functions\Utils\NetworkHooks.cs" />
+    <Compile Include="Functions\Utils\NetworkEvents.cs" />
     <Compile Include="Functions\Utils\EnableDisableListener.cs" />
     <Compile Include="Functions\Utils\OrbitItem.cs" />
   </ItemGroup>
