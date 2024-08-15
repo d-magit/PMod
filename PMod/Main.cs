@@ -20,7 +20,7 @@ namespace PMod
     {
         public const string Name = "PMod";
         public const string Author = "Davi";
-        public const string Version = "1.1.7";
+        public const string Version = "1.2.0";
     }
 
     public static class Main
