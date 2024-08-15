@@ -101,5 +101,10 @@ namespace Client
             ForceClone.OnUpdate();
             Orbit.OnUpdate();
         }
+
+        public override void OnPreferencesSaved()
+        {
+            Orbit.OnPreferencesSaved();
+        }
     }
 }
