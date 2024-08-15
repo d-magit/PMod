@@ -5,6 +5,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 using ApiAvatar = VRC.Core.ApiAvatar;
 using APIUser = VRC.Core.APIUser;
+using PMod.Loader;
 
 namespace PMod.Modules
 {
@@ -37,7 +38,7 @@ namespace PMod.Modules
         {
             if (!IsOn.Value) return;
             CreateButtons();
-            Main.listener.OnEnabled += delegate 
+            PMod.listener.OnEnabled += delegate 
             {
                 APIUser QMUser = QM.field_Private_APIUser_0;
                 toClone = Utilities.GetPlayerFromID(QMUser.id).prop_ApiAvatar_0;
@@ -57,7 +58,7 @@ namespace PMod.Modules
                     isFar = false;
                 }
             };
-            Main.listener.OnDisabled += delegate 
+            PMod.listener.OnDisabled += delegate 
             {
                 if (isFar)
                 {
@@ -90,7 +91,7 @@ namespace PMod.Modules
             cloneButton = GameObject.Find("UserInterface/QuickMenu/UserInteractMenu/CloneAvatarButton").transform;
             cameraClone = new QMSingleButton("UserInteractMenu", 5, 0, "Clone\nPublic\nAvatar", () => {
                 Utilities.ChangeToAVByID(toClone.id);
-                MelonLogger.Msg(ConsoleColor.Red, "Avatar cloned: " + toClone.id);
+                PLogger.Msg(ConsoleColor.Red, "Avatar cloned: " + toClone.id);
             }, "Force Clone Avatar.", null, new Color(1, .8f, 1));
 
             Transform platform = Object.Instantiate(cloneButton.Find("PlatformIcon"), cameraClone.getGameObject().transform);

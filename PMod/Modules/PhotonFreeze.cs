@@ -34,7 +34,7 @@ namespace PMod.Modules
         internal void ShowFreezeMenu()
         {
             FreezeMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
-            FreezeMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
+            FreezeMenu.AddSimpleButton("Go back", () => PMod.ClientMenu.Show());
             FreezeMenu.AddToggleButton("PhotonFreeze", (_) => ToggleFreeze(), () => IsFreeze);
             if (IsFreeze) FreezeMenu.AddSimpleButton("TP To Frozen Position", () => { TPPlayerToPos(OriginalPos, OriginalRot); });
             FreezeMenu.Show();

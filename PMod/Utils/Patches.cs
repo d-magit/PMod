@@ -10,6 +10,7 @@ using Photon.Realtime;
 using ExitGames.Client.Photon;
 using VRC;
 using VRC.SDKBase;
+using PMod.Loader;
 
 namespace PMod.Utils
 {
@@ -89,8 +90,8 @@ namespace PMod.Utils
                 }
                 catch (Exception e)
                 {
-                    MelonLogger.Warning("Something went wrong in Freeze Patch");
-                    MelonLogger.Error($"{e}");
+                    PLogger.Warning("Something went wrong in Freeze Patch");
+                    PLogger.Error($"{e}");
                 }
             }
             return freezeSetupDelegate(EType, Obj, EOptions, SOptions, nativeMethodInfo);
@@ -110,8 +111,8 @@ namespace PMod.Utils
             }
             catch (Exception e)
             {
-                MelonLogger.Warning("Something went wrong in Local to Master Setup Patch");
-                MelonLogger.Error($"{e}");
+                PLogger.Warning("Something went wrong in Local to Master Setup Patch");
+                PLogger.Error($"{e}");
             }
             localToGlobalSetupDelegate(instancePtr, eventPtr, broadcast, instigatorId, fastForward, nativeMethodInfo);
         }
@@ -135,8 +136,8 @@ namespace PMod.Utils
             }
             catch (Exception e)
             {
-                MelonLogger.Warning("Something went wrong in OnPlayerNetPatch");
-                MelonLogger.Error($"{e}");
+                PLogger.Warning("Something went wrong in OnPlayerNetPatch");
+                PLogger.Error($"{e}");
             }
             return result;
         }
