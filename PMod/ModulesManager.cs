@@ -33,7 +33,7 @@ namespace PMod
 		internal static EmmAllower emmAllower;
 		internal static ForceClone forceClone;
 		internal static FrozenPlayersManager frozenPlayersManager;
-		// internal static InvisibleJoin invisibleJoin;
+		internal static InvisibleJoin invisibleJoin;
 		internal static ItemGrabber itemGrabber;
 		internal static Orbit orbit;
 		internal static PhotonFreeze photonFreeze;
@@ -46,7 +46,7 @@ namespace PMod
 			modules.Add(emmAllower = new());
 			modules.Add(forceClone = new());
 			modules.Add(frozenPlayersManager = new());
-			// modules.Add(invisibleJoin = new());
+		    modules.Add(invisibleJoin = new());
 			modules.Add(itemGrabber = new());
 			modules.Add(orbit = new());
 			modules.Add(photonFreeze = new());
