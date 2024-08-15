@@ -1,25 +1,25 @@
-﻿using Client.Functions.Utils;
+﻿using Client.Utils;
 using System;
 using MelonLoader;
 using UIExpansionKit.API;
 using VRC.SDKBase;
 using UnityEngine;
 
-namespace Client.Functions
+namespace Client.Modules
 {
-    internal static class Triggers
+    internal class Triggers : ModuleBase
     {
-        private static bool IsForceGlobal = false;
-        public static MelonPreferences_Entry<bool> IsOn;
-        public static bool IsAlwaysForceGlobal = false;
+        private bool IsForceGlobal = false;
+        internal MelonPreferences_Entry<bool> IsOn;
+        internal bool IsAlwaysForceGlobal = false;
 
-        public static void OnApplicationStart()
+        internal Triggers()
         {
             MelonPreferences.CreateCategory("LocalToGlobal", "PM - Local To Global");
             IsOn = MelonPreferences.CreateEntry("LocalToGlobal", "IsOn", false, "Activate Mod? This is a risky function.");
         }
 
-        public static void ShowTriggersMenu()
+        internal void ShowTriggersMenu()
         {
             ICustomShowableLayoutedMenu TriggersMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
             TriggersMenu.AddSimpleButton("Go back", () => Main.ClientMenu.Show());
@@ -49,7 +49,7 @@ namespace Client.Functions
             TriggersMenu.Show();
         }
 
-        private static void ShowLocalToGlobalMenu()
+        private void ShowLocalToGlobalMenu()
         {
             ICustomShowableLayoutedMenu LocalToGlobalMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
             LocalToGlobalMenu.AddSimpleButton("Go back", () => ShowTriggersMenu());
@@ -58,7 +58,7 @@ namespace Client.Functions
             LocalToGlobalMenu.Show();
         }
 
-        private static void TriggerMenu(VRC_Trigger trigger)
+        private void TriggerMenu(VRC_Trigger trigger)
         {
             ICustomShowableLayoutedMenu TriggerMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu4Columns);
             TriggerMenu.AddSimpleButton("Go back", () => ShowTriggersMenu());

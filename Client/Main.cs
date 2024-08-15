@@ -1,11 +1,11 @@
-﻿using Client.Functions;
-using Client.Functions.Utils;
+﻿using Client.Utils;
 using System;
 using UnhollowerRuntimeLib;
 using MelonLoader;
 using UIExpansionKit.API;
 using System.Collections;
 using System.Reflection;
+using VRC;
 
 [assembly: AssemblyTitle(Client.BuildInfo.Name)]
 [assembly: AssemblyCopyright("Created by " + Client.BuildInfo.Author)]
@@ -27,84 +27,73 @@ namespace Client
     public class Main : MelonMod
     {
         private static MelonMod Instance;
-        public static HarmonyLib.Harmony HInstance => Instance.HarmonyInstance;
-        public static EnableDisableListener listener;
-        public static ICustomShowableLayoutedMenu ClientMenu;
+        internal static HarmonyLib.Harmony HInstance => Instance.HarmonyInstance;
+        internal static EnableDisableListener listener;
+        internal static ICustomShowableLayoutedMenu ClientMenu;
 
         public override void OnApplicationStart()
         {
             Instance = this;
+            NetworkEvents.OnPlayerJoined += OnPlayerJoined;
+            NetworkEvents.OnPlayerLeft += OnPlayerLeft;
             MelonCoroutines.Start(WaitForUIInit());
             ClassInjector.RegisterTypeInIl2Cpp<EnableDisableListener>();
+            ModulesManager.Initialize();
             NativePatches.OnApplicationStart();
-            FrozenPlayersManager.OnApplicationStart();
-            ItemGrabber.OnApplicationStart();
-            Triggers.OnApplicationStart();
-            Orbit.OnApplicationStart();
-            PhotonFreeze.OnApplicationStart();
-            UserInteractUtils.OnApplicationStart();
             ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Personal Client", () => ShowClientMenu());
             MelonLogger.Msg(ConsoleColor.Red, "Personal Client Loaded Successfully!");
+
         }
 
-        private static void ShowClientMenu()
-        {
-            ClientMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
-            ClientMenu.AddSimpleButton("Close Menu", ClientMenu.Hide);
-            ClientMenu.AddSimpleButton("Orbit", () => 
-            {
-                if (Orbit.IsOn.Value) Orbit.OrbitMenu.Show();
-                else RiskyFuncAlert("Orbit");
-            });
-            ClientMenu.AddSimpleButton("ItemGrabber", () =>
-            {
-                if (ItemGrabber.IsOn.Value) ItemGrabber.PickupMenu.Show();
-                else RiskyFuncAlert("ItemGrabber");
-            });
-            ClientMenu.AddSimpleButton("PhotonFreeze", () => 
-            {
-                if (PhotonFreeze.IsOn.Value) PhotonFreeze.ShowFreezeMenu();
-                else RiskyFuncAlert("PhotonFreeze");
-            });
-            ClientMenu.AddSimpleButton("Triggers", () => Triggers.ShowTriggersMenu());
-            ClientMenu.Show();
-        }
-
-        public static void RiskyFuncAlert(string FuncName) => Methods.PopupV2(
-            FuncName,
-            "You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
-            "Close",
-            new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
-
-        public static IEnumerator WaitForUIInit()
+        internal static IEnumerator WaitForUIInit()
         {
             while (QuickMenu.prop_QuickMenu_0 == null)
                 yield return null;
 
             listener = QuickMenu.prop_QuickMenu_0.transform.Find("UserInteractMenu").gameObject.AddComponent<EnableDisableListener>();
+            ModulesManager.OnUiManagerInit();
             NetworkEvents.OnUiManagerInit();
-            AvatarFromID.OnUiManagerInit();
-            ForceClone.OnUiManagerInit();
-            Orbit.OnUiManagerInit();
-            UserInteractUtils.OnUiManagerInit();
             yield break;
         }
 
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName) => ModulesManager.OnSceneWasLoaded(buildIndex, sceneName);
+
+        public override void OnUpdate() => ModulesManager.OnUpdate();
+
+        public override void OnPreferencesSaved() => ModulesManager.OnPreferencesSaved();
+
+        internal static void OnPlayerJoined(Player player) => ModulesManager.OnPlayerJoined(player);
+
+        internal static void OnPlayerLeft(Player player) => ModulesManager.OnPlayerLeft(player);
+
+        private static void ShowClientMenu()
         {
-            EmmAllower.OnSceneWasLoaded();
-            ItemGrabber.OnSceneWasLoaded();
+            ClientMenu = ExpansionKitApi.CreateCustomQuickMenuPage(LayoutDescription.QuickMenu3Columns);
+            ClientMenu.AddSimpleButton("Close Menu", ClientMenu.Hide);
+            ClientMenu.AddSimpleButton("Orbit", () =>
+            {
+                if (ModulesManager.orbit.IsOn.Value) ModulesManager.orbit.OrbitMenu.Show();
+                else RiskyFuncAlert("Orbit");
+            });
+            ClientMenu.AddSimpleButton("ItemGrabber", () =>
+            {
+                if (ModulesManager.itemGrabber.IsOn.Value) ModulesManager.itemGrabber.PickupMenu.Show();
+                else RiskyFuncAlert("ItemGrabber");
+            });
+            ClientMenu.AddSimpleButton("PhotonFreeze", () =>
+            {
+                if (ModulesManager.photonFreeze.IsOn.Value) ModulesManager.photonFreeze.ShowFreezeMenu();
+                else RiskyFuncAlert("PhotonFreeze");
+            });
+            ClientMenu.AddSimpleButton("Triggers", () => ModulesManager.triggers.ShowTriggersMenu());
+            ClientMenu.Show();
         }
 
-        public override void OnUpdate()
-        {
-            ForceClone.OnUpdate();
-            Orbit.OnUpdate();
-        }
+        internal static void RiskyFuncAlert(string FuncName) => Methods.PopupV2(
+            FuncName,
+            "You have to first activate the mod on Melon Preferences menu! Be aware that this is a risky function.",
+            "Close",
+            new Action(() => { VRCUiManager.prop_VRCUiManager_0.HideScreen("POPUP"); }));
 
-        public override void OnPreferencesSaved()
-        {
-            Orbit.OnPreferencesSaved();
-        }
     }
 }

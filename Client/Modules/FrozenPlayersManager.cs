@@ -1,23 +1,17 @@
-﻿using Client.Functions.Utils;
+﻿using Client.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using VRC;
 using Object = UnityEngine.Object;
 
-namespace Client.Functions
+namespace Client.Modules
 {
-    internal static class FrozenPlayersManager
+    internal class FrozenPlayersManager : ModuleBase
     {
-        public static Dictionary<string, Timer> EntryDict = new();
+        internal Dictionary<string, Timer> EntryDict = new();
 
-        public static void OnApplicationStart()
-        {
-            NetworkEvents.OnJoin += OnJoin;
-            NetworkEvents.OnLeave += OnLeave;
-        }
-
-        private static void OnJoin(Player player)
+        internal override void OnPlayerJoined(Player player)
         {
             var id = player.prop_APIUser_0.id;
             if (id != Player.prop_Player_0.prop_APIUser_0.id)
@@ -34,9 +28,9 @@ namespace Client.Functions
             }
         }
 
-        private static void OnLeave(Player player) => EntryDict.Remove(player.prop_APIUser_0.id);
+        internal override void OnPlayerLeft(Player player) => EntryDict.Remove(player.prop_APIUser_0.id);
 
-        public static void NametagSet(Timer entry)
+        internal void NametagSet(Timer entry)
         {
             try
             {
